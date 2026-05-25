@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   Career Mitra — Premium Design System
+   Sleek modern design inspired by Stripe & Linear.
+   ============================================ */
+
+:root {
+  --brand-50: #f5f3ff;
+  --brand-100: #ede9fe;
+  --brand-200: #ddd6fe;
+  --brand-500: #6366f1; /* Indigo 500 */
+  --brand-600: #4f46e5; /* Indigo 600 */
+  --brand-700: #4338ca; /* Indigo 700 */
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+
+  --surface-0: #ffffff;
+  --surface-50: #fafafa;
+  --surface-100: #f4f4f5;
+  --surface-200: #e4e4e7;
+  --surface-300: #d4d4d8;
+
+  --ink-900: #09090b; /* Zinc 950 */
+  --ink-800: #18181b;
+  --ink-700: #27272a;
+  --ink-600: #52525b;
+  --ink-500: #71717a;
+  --ink-400: #a1a1aa;
+  
+  --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+  --accent-glow: 0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+/* === Base === */
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #fafafa;
+  color: var(--ink-800);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-200);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-400);
+}
+
+/* === Selection === */
+::selection {
+  background-color: rgba(99, 102, 241, 0.2);
+  color: var(--ink-900);
+}
+
+/* === Mesh Background Effect === */
+.bg-mesh {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(124, 58, 237, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(219, 39, 119, 0.04) 0px, transparent 50%);
+}
+
+/* === Glassmorphism Components === */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================
+   Component Classes
+   ============================================ */
+
+@layer components {
+  /* --- Buttons --- */
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-xl font-semibold text-white text-sm transition-all duration-200 flex items-center justify-center gap-2;
+    background: linear-gradient(135deg, var(--brand-600) 0%, #5850ec 100%);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-600) 100%);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active {
+    transform: translateY(0) scale(0.98);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 border flex items-center justify-center gap-2;
+    background-color: var(--surface-0);
+    color: var(--ink-800);
+    border-color: var(--surface-200);
+  }
+  .btn-secondary:hover {
+    background-color: var(--surface-50);
+    border-color: var(--ink-500);
+    transform: translateY(-1px);
+  }
+  .btn-secondary:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .btn-outline {
+    @apply px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 border flex items-center justify-center gap-2;
+    background: transparent;
+    color: var(--brand-600);
+    border-color: var(--brand-500);
+  }
+  .btn-outline:hover {
+    background: rgba(99, 102, 241, 0.05);
+    border-color: var(--brand-700);
+    transform: translateY(-1px);
+  }
+  .btn-outline:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2;
+    background: transparent;
+    color: var(--ink-700);
+  }
+  .btn-ghost:hover {
+    background-color: var(--surface-100);
+    color: var(--ink-900);
+  }
+
+  /* --- Input Fields --- */
+  .input-field {
+    @apply w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-200;
+    background-color: var(--surface-0);
+    border: 1px solid var(--surface-200);
+    color: var(--ink-900);
+  }
+  .input-field::placeholder {
+    color: var(--ink-400);
+  }
+  .input-field:focus {
+    outline: none;
+    border-color: var(--brand-500);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  }
+
+  /* --- Cards --- */
+  .card {
+    @apply rounded-2xl transition-all duration-300 bg-white border border-surface-200;
+  }
+  .card-hover {
+    @apply hover:border-brand-200 hover:shadow-[0_12px_24px_-4px_rgba(99,102,241,0.06),0_4px_12px_-2px_rgba(99,102,241,0.04)] hover:-translate-y-0.5;
+  }
+
+  /* --- Badges --- */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold tracking-wide;
+  }
+  .badge-primary { @apply bg-indigo-50 text-indigo-700 border border-indigo-100; }
+  .badge-success { @apply bg-emerald-50 text-emerald-700 border border-emerald-100; }
+  .badge-warning { @apply bg-amber-50 text-amber-700 border border-amber-100; }
+  .badge-danger { @apply bg-rose-50 text-rose-700 border border-rose-100; }
+  .badge-neutral { @apply bg-zinc-100 text-zinc-700 border border-zinc-200; }
+}
+
+/* ============================================
+   Utility Styles
+   ============================================ */
+
+.text-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.avatar-ring {
+  box-shadow: 0 0 0 2px var(--surface-0), 0 0 0 4px var(--brand-200);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
+
+/* Custom Keyframe Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
