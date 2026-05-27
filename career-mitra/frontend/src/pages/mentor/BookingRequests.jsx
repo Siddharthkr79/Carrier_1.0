@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FiCheckCircle, FiXCircle, FiCalendar, FiClock, FiVideo, FiCheckSquare, FiInbox } from 'react-icons/fi';
 import { toast } from '../../utils/toast';
 import { bookingService } from '../../services';
@@ -227,13 +228,13 @@ const BookingRequests = () => {
                     <span>Meeting link created automatically</span>
                   </div>
                   <div className="flex gap-2">
-                    <a
-                      href={`/video-room/${booking.id}`}
+                    <Link
+                      to={`/video-room/${booking.id}`}
                       className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors shadow-soft"
                     >
                       <FiVideo size={14} />
                       Join Video Call
-                    </a>
+                    </Link>
                     <button
                       onClick={() => handleComplete(booking.id)}
                       className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-ink-700 bg-surface-100 rounded-lg hover:bg-surface-200 transition-colors border border-surface-200"

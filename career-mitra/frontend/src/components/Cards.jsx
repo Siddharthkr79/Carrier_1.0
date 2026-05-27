@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FiCalendar, FiClock, FiCheck, FiAlertCircle, FiVideo, FiDollarSign } from 'react-icons/fi';
 import { Button, Badge } from './common/UIComponents';
 
@@ -49,13 +50,13 @@ export const SessionCard = ({ session, onBook, onCancel }) => {
       {(onBook || onCancel || (session.status === 'confirmed' && session.meetingLink)) && (
         <div className="flex gap-3 pt-3 border-t border-surface-100 mt-2">
           {session.status === 'confirmed' && session.meetingLink && (
-            <a
-              href={`/video-room/${session.id}`}
+            <Link
+              to={`/video-room/${session.id}`}
               className="btn-primary text-xs flex items-center justify-center gap-2 py-2 px-4 flex-1 text-center font-bold"
             >
               <FiVideo size={14} />
               Join Video Room
-            </a>
+            </Link>
           )}
           {onBook && session.status === 'pending' && (
             <Button size="sm" onClick={onBook} className="flex-1">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FiStar, FiCalendar, FiClock, FiVideo } from 'react-icons/fi';
 import { toast } from '../../utils/toast';
 import { bookingService, reviewService } from '../../services';
@@ -116,13 +117,13 @@ const MyBookings = () => {
 
                 {booking.status === 'APPROVED' && (
                   <div className="pt-3.5 border-t border-surface-100 flex justify-end">
-                    <a
-                      href={`/video-room/${booking.id}`}
+                    <Link
+                      to={`/video-room/${booking.id}`}
                       className="btn-primary text-xs flex items-center gap-2 px-5 py-2 font-bold shadow-sm shadow-indigo-500/10"
                     >
                       <FiVideo size={14} />
                       Join Video Call
-                    </a>
+                    </Link>
                   </div>
                 )}
 
