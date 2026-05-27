@@ -53,6 +53,7 @@ public class MentorController {
             MentorDTO mentor = mentorService.getMentorById(id);
             return ResponseEntity.ok(mentor);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse(e.getMessage()));
         }
@@ -66,6 +67,7 @@ public class MentorController {
             MentorDTO mentor = mentorService.getMentorByUserId(userDto.getId());
             return ResponseEntity.ok(mentor);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse(e.getMessage()));
         }
@@ -81,6 +83,7 @@ public class MentorController {
             MentorDTO created = mentorService.createMentor(dto, user);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse(e.getMessage()));
         }
@@ -92,6 +95,7 @@ public class MentorController {
             MentorDTO updated = mentorService.updateMentor(id, dto);
             return ResponseEntity.ok(updated);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse(e.getMessage()));
         }
@@ -124,6 +128,7 @@ public class MentorController {
 
             return ResponseEntity.ok(new PhotoUploadResponse("Photo uploaded successfully", urlPath));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse(e.getMessage()));
         }
