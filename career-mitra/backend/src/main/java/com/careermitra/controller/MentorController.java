@@ -122,10 +122,21 @@ public class MentorController {
             mentor.setPhotoUrl(urlPath);
             mentorRepository.save(mentor);
 
-            return ResponseEntity.ok(new MessageResponse("Photo uploaded successfully"));
+            return ResponseEntity.ok(new PhotoUploadResponse("Photo uploaded successfully", urlPath));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse(e.getMessage()));
         }
     }
 }
+
+class PhotoUploadResponse {
+    public String message;
+    public String photoUrl;
+
+    public PhotoUploadResponse(String message, String photoUrl) {
+        this.message = message;
+        this.photoUrl = photoUrl;
+    }
+}
+

@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('mentorId');
     setToken(null);
     setUser(null);
   };

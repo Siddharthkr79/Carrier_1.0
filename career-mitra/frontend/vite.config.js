@@ -6,6 +6,12 @@ export default defineConfig({
   server: {
     port: 3000,
     open: false,
+    proxy: {
+      '/uploads': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
   },
   // Map REACT_APP_ env vars to import.meta.env.VITE_ format
   define: {

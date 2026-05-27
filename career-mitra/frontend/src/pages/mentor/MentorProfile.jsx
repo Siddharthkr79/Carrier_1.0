@@ -13,7 +13,9 @@ const MentorProfile = () => {
     sessionPrice: 0,
     skills: [],
     expertise: [],
+    photoUrl: '',
   });
+  const [mentorId, setMentorId] = useState(null);
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,15 +43,17 @@ const MentorProfile = () => {
         sessionPrice: data.sessionPrice || 0,
         skills: Array.isArray(data.skills) ? data.skills : [],
         expertise: Array.isArray(data.expertise) ? data.expertise : [],
+        photoUrl: data.photoUrl || '',
       });
       
       // Persist mentorId for subsequent availability calls
-      const mentorId = data.id;
-      if (mentorId) {
-        localStorage.setItem('mentorId', mentorId);
+      const id = data.id;
+      if (id) {
+        setMentorId(id);
+        localStorage.setItem('mentorId', id);
         // Now fetch availability with the real mentorId
         try {
-          const availRes = await availabilityService.getAll(mentorId);
+          const availRes = await availabilityService.getAll(id);
           setAvailability(availRes.data || []);
         } catch (err) {
           console.error('Failed to fetch availability:', err);
@@ -82,15 +86,11 @@ const MentorProfile = () => {
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Show local instant preview immediately
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, photoUrl: reader.result }));
-      };
-      reader.readAsDataURL(file);
-
       try {
-        await mentorService.uploadPhoto(file);
+        const response = await mentorService.uploadPhoto(file);
+        if (response.data && response.data.photoUrl) {
+          setFormData((prev) => ({ ...prev, photoUrl: response.data.photoUrl }));
+        }
         toast.success('Photo uploaded successfully');
       } catch (error) {
         toast.error('Failed to upload photo');
@@ -98,12 +98,17 @@ const MentorProfile = () => {
     }
   };
 
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    if (!mentorId) {
+      toast.error('Cannot save profile: Mentor ID not found. Please reload.');
+      return;
+    }
     setSaving(true);
 
     try {
-      await mentorService.update(localStorage.getItem('mentorId'), formData);
+      await mentorService.update(mentorId, formData);
       toast.success('Profile updated successfully');
     } catch (error) {
       toast.error('Failed to update profile');
@@ -114,9 +119,13 @@ const MentorProfile = () => {
 
   const handleAddAvailability = async (e) => {
     e.preventDefault();
+    if (!mentorId) {
+      toast.error('Cannot add availability: Mentor ID not found.');
+      return;
+    }
 
     try {
-      const payload = { ...newSlot, mentorId: localStorage.getItem('mentorId') };
+      const payload = { ...newSlot, mentorId: mentorId };
       await availabilityService.create(payload);
       toast.success('Availability slot added');
       setNewSlot({

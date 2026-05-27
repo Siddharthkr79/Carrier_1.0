@@ -91,6 +91,9 @@ public class MentorService {
         mentor.setDomain(dto.getDomain());
         mentor.setYearsOfExperience(dto.getYearsOfExperience());
         mentor.setSessionPrice(dto.getSessionPrice());
+        if (dto.getPhotoUrl() != null && !dto.getPhotoUrl().startsWith("data:image")) {
+            mentor.setPhotoUrl(dto.getPhotoUrl());
+        }
 
         try {
             if (dto.getSkills() != null) {
