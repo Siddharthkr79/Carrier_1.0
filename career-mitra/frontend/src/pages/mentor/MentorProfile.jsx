@@ -25,6 +25,8 @@ const MentorProfile = () => {
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [skillsInput, setSkillsInput] = useState('');
+  const [expertiseInput, setExpertiseInput] = useState('');
   const [newSlot, setNewSlot] = useState({
     dayOfWeek: 'MONDAY',
     startTime: '09:00',
@@ -41,16 +43,21 @@ const MentorProfile = () => {
       // First fetch profile to get the mentor ID
       const profileRes = await mentorService.getProfile();
       const data = profileRes.data || {};
+      const skillsArray = Array.isArray(data.skills) ? data.skills : [];
+      const expertiseArray = Array.isArray(data.expertise) ? data.expertise : [];
+      
       setFormData({
         bio: data.bio || '',
         company: data.company || '',
         yearsOfExperience: data.yearsOfExperience || 0,
         domain: data.domain || '',
         sessionPrice: data.sessionPrice || 0,
-        skills: Array.isArray(data.skills) ? data.skills : [],
-        expertise: Array.isArray(data.expertise) ? data.expertise : [],
+        skills: skillsArray,
+        expertise: expertiseArray,
         photoUrl: data.photoUrl || '',
       });
+      setSkillsInput(skillsArray.join(', '));
+      setExpertiseInput(expertiseArray.join(', '));
       
       // Persist mentorId for subsequent availability calls
       const id = data.id;
@@ -81,12 +88,12 @@ const MentorProfile = () => {
     }));
   };
 
-  const handleArrayInput = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value.split(',').map((item) => item.trim()),
-    }));
+  const handleSkillsChange = (e) => {
+    setSkillsInput(e.target.value);
+  };
+
+  const handleExpertiseChange = (e) => {
+    setExpertiseInput(e.target.value);
   };
 
   const handlePhotoUpload = async (e) => {
@@ -114,7 +121,23 @@ const MentorProfile = () => {
     setSaving(true);
 
     try {
-      await mentorService.update(mentorId, formData);
+      const skillsArray = skillsInput
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const expertiseArray = expertiseInput
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const payload = {
+        ...formData,
+        skills: skillsArray,
+        expertise: expertiseArray,
+      };
+
+      await mentorService.update(mentorId, payload);
+      setFormData(payload);
       toast.success('Profile updated successfully');
     } catch (error) {
       toast.error('Failed to update profile');
@@ -253,8 +276,8 @@ const MentorProfile = () => {
             </label>
             <textarea
               name="skills"
-              value={formData.skills.join(', ')}
-              onChange={handleArrayInput}
+              value={skillsInput}
+              onChange={handleSkillsChange}
               placeholder="e.g., JavaScript, React, Node.js"
               rows="2"
               className="input-field"
@@ -268,8 +291,8 @@ const MentorProfile = () => {
             </label>
             <textarea
               name="expertise"
-              value={formData.expertise.join(', ')}
-              onChange={handleArrayInput}
+              value={expertiseInput}
+              onChange={handleExpertiseChange}
               placeholder="e.g., Full Stack Development, Startup Mentoring"
               rows="2"
               className="input-field"
