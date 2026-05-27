@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from '../../utils/toast';
-import { mentorService, availabilityService } from '../../services';
+import { mentorService, availabilityService, BACKEND_URL } from '../../services';
 import { useMentorRoute } from '../../hooks/useProtectedRoute';
+
+const getPhotoUrl = (url) => {
+  if (!url) return 'https://via.placeholder.com/150';
+  if (url.startsWith('http')) return url;
+  return BACKEND_URL + url;
+};
 
 const MentorProfile = () => {
   useMentorRoute();
@@ -273,7 +279,7 @@ const MentorProfile = () => {
           {/* Photo Upload with Preview */}
           <div className="flex items-center gap-4 bg-surface-50 p-4 rounded-lg border border-surface-200">
             <img
-              src={formData.photoUrl || 'https://via.placeholder.com/150'}
+              src={getPhotoUrl(formData.photoUrl)}
               alt="Profile Avatar"
               className="w-16 h-16 rounded-full object-cover ring-2 ring-brand-500 shadow-soft"
             />

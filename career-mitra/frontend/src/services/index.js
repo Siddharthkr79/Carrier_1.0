@@ -1,4 +1,6 @@
-import api from './api';
+import api, { BACKEND_URL } from './api';
+
+export { BACKEND_URL };
 
 // Auth APIs
 export const authService = {

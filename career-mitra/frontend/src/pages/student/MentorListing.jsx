@@ -3,23 +3,29 @@ import { FiFilter } from 'react-icons/fi';
 import { MentorCard, MentorCardSkeleton } from '../../components/MentorCard';
 import { SearchBar, FilterPanel } from '../../components/SearchAndFilter';
 import { mockMentors } from '../../data/mockData';
-import { mentorService } from '../../services';
+import { mentorService, BACKEND_URL } from '../../services';
 
-const mapMentorData = (m) => ({
-  id: m.id,
-  name: m.name,
-  role: m.domain || 'Mentor',
-  company: m.company || 'Tech Expert',
-  image: m.photoUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
-  skills: m.skills || [],
-  experience: m.yearsOfExperience || 0,
-  rating: m.rating || 5.0,
-  reviews: m.reviewCount || 0,
-  sessionFee: m.sessionPrice || 0,
-  about: m.bio || '',
-  availability: m.expertise || ['Mon', 'Wed', 'Fri'],
-  badge: m.rating >= 4.8 ? 'Top Mentor' : 'Verified'
-});
+const mapMentorData = (m) => {
+  let imageUrl = m.photoUrl;
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    imageUrl = BACKEND_URL + imageUrl;
+  }
+  return {
+    id: m.id,
+    name: m.name,
+    role: m.domain || 'Mentor',
+    company: m.company || 'Tech Expert',
+    image: imageUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
+    skills: m.skills || [],
+    experience: m.yearsOfExperience || 0,
+    rating: m.rating || 5.0,
+    reviews: m.reviewCount || 0,
+    sessionFee: m.sessionPrice || 0,
+    about: m.bio || '',
+    availability: m.expertise || ['Mon', 'Wed', 'Fri'],
+    badge: m.rating >= 4.8 ? 'Top Mentor' : 'Verified'
+  };
+};
 
 const MentorListing = () => {
   const [searchTerm, setSearchTerm] = useState('');
