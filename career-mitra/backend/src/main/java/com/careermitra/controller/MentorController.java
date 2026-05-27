@@ -17,7 +17,7 @@ import java.io.File;
 
 @RestController
 @RequestMapping("/api/mentors")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${app.cors.allowedOrigins}")
 public class MentorController {
     @Autowired
     private MentorService mentorService;
