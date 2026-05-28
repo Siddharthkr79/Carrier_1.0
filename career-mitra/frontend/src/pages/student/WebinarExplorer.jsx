@@ -141,7 +141,7 @@ const WebinarExplorer = () => {
 
                   {/* Action Buttons */}
                   <div className="pt-3 border-t border-surface-100 flex gap-2">
-                    {w.isRegistered ? (
+                    {(w.isRegistered || w.registered) ? (
                       isActive ? (
                         <button
                           onClick={() => navigate(`/webinar-room/${w.id}`)}

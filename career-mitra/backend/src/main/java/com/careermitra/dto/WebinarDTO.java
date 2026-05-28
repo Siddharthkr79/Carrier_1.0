@@ -3,6 +3,7 @@ package com.careermitra.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @NoArgsConstructor
@@ -20,5 +21,7 @@ public class WebinarDTO {
     private Integer registeredCount;
     private String status;
     private String meetingLink;
+
+    @JsonProperty("isRegistered")
     private boolean isRegistered;
 }
