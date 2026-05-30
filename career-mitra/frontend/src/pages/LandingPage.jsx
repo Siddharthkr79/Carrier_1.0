@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiArrowRight, FiCheck, FiStar, FiCalendar, FiUsers, FiBookOpen, FiVideo, FiShield, FiTrendingUp } from 'react-icons/fi';
 import { mockMentors } from '../data/mockData';
+import { useAuth } from '../hooks/useAuth';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -22,6 +23,8 @@ const itemVariants = {
 };
 
 const LandingPage = () => {
+  const { user } = useAuth();
+
   return (
     <div className="bg-mesh min-h-screen overflow-hidden">
       {/* Hero Section */}
@@ -61,11 +64,13 @@ const LandingPage = () => {
                     <FiArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
                   </button>
                 </Link>
-                <Link to="/signup">
-                  <button className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-base shadow-sm">
-                    Sign up free
-                  </button>
-                </Link>
+                {!user && (
+                  <Link to="/signup">
+                    <button className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-base shadow-sm">
+                      Sign up free
+                    </button>
+                  </Link>
+                )}
               </motion.div>
 
               {/* Understated Social Proof */}
@@ -302,19 +307,31 @@ const LandingPage = () => {
               Ready to learn from the best?
             </h2>
             <p className="text-ink-500 text-sm md:text-base mb-8 max-w-lg mx-auto leading-relaxed">
-              Create an account now and unlock access to top-tier mentorship. Your dream job is waiting.
+              {user 
+                ? "Explore our expert mentors and book a 1:1 session today. Your dream job is waiting." 
+                : "Create an account now and unlock access to top-tier mentorship. Your dream job is waiting."}
             </p>
             <div className="flex flex-col sm:flex-row gap-4.5 justify-center">
-              <Link to="/signup" className="w-full sm:w-auto">
-                <button className="btn-primary w-full px-8 py-3.5 text-base">
-                  Get Started Free
-                </button>
-              </Link>
-              <Link to="/mentors" className="w-full sm:w-auto">
-                <button className="btn-secondary w-full px-8 py-3.5 text-base bg-transparent">
-                  Browse Mentors
-                </button>
-              </Link>
+              {!user ? (
+                <>
+                  <Link to="/signup" className="w-full sm:w-auto">
+                    <button className="btn-primary w-full px-8 py-3.5 text-base">
+                      Get Started Free
+                    </button>
+                  </Link>
+                  <Link to="/mentors" className="w-full sm:w-auto">
+                    <button className="btn-secondary w-full px-8 py-3.5 text-base bg-transparent">
+                      Browse Mentors
+                    </button>
+                  </Link>
+                </>
+              ) : (
+                <Link to="/mentors" className="w-full sm:w-auto">
+                  <button className="btn-primary w-full px-8 py-3.5 text-base">
+                    Browse Mentors
+                  </button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
