@@ -159,9 +159,11 @@ const MentorProfile = () => {
         .filter(Boolean);
 
       const finalSkills = [...skillsArray, ...selectedCategories];
+      const primaryDomain = selectedCategories[0] || 'Other';
 
       const payload = {
         ...formData,
+        domain: primaryDomain,
         skills: finalSkills,
         expertise: expertiseArray,
       };
@@ -233,8 +235,8 @@ const MentorProfile = () => {
             />
           </div>
 
-          {/* Company and Experience */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Company, Experience and Price */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Company</label>
               <input
@@ -259,35 +261,6 @@ const MentorProfile = () => {
                 className="input-field"
                 required
               />
-            </div>
-          </div>
-
-          {/* Domain (Exam Category) and Price */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Primary Exam Category</label>
-              <select
-                name="domain"
-                value={formData.domain}
-                onChange={handleInputChange}
-                className="input-field"
-                required
-              >
-                <option value="">Select Exam Category</option>
-                <option value="Placement Preparation">Placement Preparation</option>
-                <option value="Aptitude">Aptitude</option>
-                <option value="DSA & Coding">DSA & Coding</option>
-                <option value="Technical Interviews">Technical Interviews</option>
-                <option value="Mock Tests">Mock Tests</option>
-                <option value="GATE">GATE</option>
-                <option value="CAT">CAT</option>
-                <option value="UPSC">UPSC</option>
-                <option value="SSC">SSC</option>
-                <option value="Banking">Banking</option>
-                <option value="Railway">Railway</option>
-                <option value="Other Competitive Exams">Other Competitive Exams</option>
-                <option value="Other">Other</option>
-              </select>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
