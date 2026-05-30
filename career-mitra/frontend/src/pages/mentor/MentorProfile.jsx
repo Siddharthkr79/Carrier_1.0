@@ -262,10 +262,10 @@ const MentorProfile = () => {
             </div>
           </div>
 
-          {/* Domain and Price */}
+          {/* Domain (Exam Category) and Price */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Domain</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Primary Exam Category</label>
               <select
                 name="domain"
                 value={formData.domain}
@@ -273,15 +273,20 @@ const MentorProfile = () => {
                 className="input-field"
                 required
               >
-                <option value="">Select Domain</option>
-                <option value="Software Engineering">Software Engineering</option>
-                <option value="Product Management">Product Management</option>
-                <option value="Data Science">Data Science</option>
-                <option value="Tech">Tech</option>
-                <option value="Finance">Finance</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Design">Design</option>
-                <option value="Entrepreneurship">Entrepreneurship</option>
+                <option value="">Select Exam Category</option>
+                <option value="Placement Preparation">Placement Preparation</option>
+                <option value="Aptitude">Aptitude</option>
+                <option value="DSA & Coding">DSA & Coding</option>
+                <option value="Technical Interviews">Technical Interviews</option>
+                <option value="Mock Tests">Mock Tests</option>
+                <option value="GATE">GATE</option>
+                <option value="CAT">CAT</option>
+                <option value="UPSC">UPSC</option>
+                <option value="SSC">SSC</option>
+                <option value="Banking">Banking</option>
+                <option value="Railway">Railway</option>
+                <option value="Other Competitive Exams">Other Competitive Exams</option>
+                <option value="Other">Other</option>
               </select>
             </div>
             <div>
