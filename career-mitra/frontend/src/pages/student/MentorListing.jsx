@@ -75,11 +75,11 @@ const MentorListing = () => {
         if (!matchesSearch) return false;
       }
 
-      if (filters.domains && filters.domains.length > 0) {
-        const matchesDomain = mentor.skills.some((skill) =>
-          filters.domains.some((domain) => skill.includes(domain))
+      if (filters.examCategories && filters.examCategories.length > 0) {
+        const matchesCategory = mentor.skills.some((skill) =>
+          filters.examCategories.some((cat) => skill.toLowerCase().includes(cat.toLowerCase()))
         );
-        if (!matchesDomain) return false;
+        if (!matchesCategory) return false;
       }
 
       if (filters.experience && filters.experience.length > 0) {
