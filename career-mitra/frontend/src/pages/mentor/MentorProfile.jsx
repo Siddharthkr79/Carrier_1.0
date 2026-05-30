@@ -9,6 +9,21 @@ const getPhotoUrl = (url) => {
   return BACKEND_URL + url;
 };
 
+const EXAM_CATEGORIES = [
+  'Placement Preparation',
+  'Aptitude',
+  'DSA & Coding',
+  'Technical Interviews',
+  'Mock Tests',
+  'GATE',
+  'CAT',
+  'UPSC',
+  'SSC',
+  'Banking',
+  'Railway',
+  'Other Competitive Exams'
+];
+
 const MentorProfile = () => {
   useMentorRoute();
   const [formData, setFormData] = useState({
@@ -21,6 +36,7 @@ const MentorProfile = () => {
     expertise: [],
     photoUrl: '',
   });
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [mentorId, setMentorId] = useState(null);
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +62,9 @@ const MentorProfile = () => {
       const skillsArray = Array.isArray(data.skills) ? data.skills : [];
       const expertiseArray = Array.isArray(data.expertise) ? data.expertise : [];
       
+      const selectedCats = skillsArray.filter(s => EXAM_CATEGORIES.includes(s));
+      const customSkills = skillsArray.filter(s => !EXAM_CATEGORIES.includes(s));
+
       setFormData({
         bio: data.bio || '',
         company: data.company || '',
@@ -56,7 +75,8 @@ const MentorProfile = () => {
         expertise: expertiseArray,
         photoUrl: data.photoUrl || '',
       });
-      setSkillsInput(skillsArray.join(', '));
+      setSelectedCategories(selectedCats);
+      setSkillsInput(customSkills.join(', '));
       setExpertiseInput(expertiseArray.join(', '));
       
       // Persist mentorId for subsequent availability calls
@@ -96,6 +116,14 @@ const MentorProfile = () => {
     setExpertiseInput(e.target.value);
   };
 
+  const handleCategoryToggle = (category) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -130,9 +158,11 @@ const MentorProfile = () => {
         .map((s) => s.trim())
         .filter(Boolean);
 
+      const finalSkills = [...skillsArray, ...selectedCategories];
+
       const payload = {
         ...formData,
-        skills: skillsArray,
+        skills: finalSkills,
         expertise: expertiseArray,
       };
 
@@ -269,9 +299,31 @@ const MentorProfile = () => {
             </div>
           </div>
 
+          {/* Exam Categories */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Exam Categories (Select all that apply)
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-surface-50 p-4 rounded-xl border border-surface-200">
+              {EXAM_CATEGORIES.map((category) => (
+                <label key={category} className="flex items-center gap-2.5 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(category)}
+                    onChange={() => handleCategoryToggle(category)}
+                    className="w-4 h-4 rounded border-surface-300 text-brand-600 focus:ring-brand-500/20 focus:ring-2 cursor-pointer transition-all"
+                  />
+                  <span className="text-xs text-ink-700 group-hover:text-ink-950 font-medium transition-colors">
+                    {category}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Skills */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 mt-4">
               Skills (comma separated)
             </label>
             <textarea
