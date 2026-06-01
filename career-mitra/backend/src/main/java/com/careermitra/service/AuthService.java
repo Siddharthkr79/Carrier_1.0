@@ -38,6 +38,9 @@ public class AuthService {
     @Autowired
     private EmailService emailService;
 
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendUrl;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthResponse login(AuthRequest request) {
@@ -104,7 +107,7 @@ public class AuthService {
             user.setResetTokenExpiry(java.time.LocalDateTime.now().plusHours(1));
             userRepository.save(user);
 
-            String resetLink = "http://localhost:3000/reset-password?token=" + token;
+            String resetLink = frontendUrl + "/reset-password?token=" + token;
             emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
         }
     }
