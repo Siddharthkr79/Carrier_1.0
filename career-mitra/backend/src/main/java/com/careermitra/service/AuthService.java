@@ -35,6 +35,9 @@ public class AuthService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private EmailService emailService;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthResponse login(AuthRequest request) {
@@ -90,5 +93,36 @@ public class AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return modelMapper.map(user, UserDTO.class);
+    }
+
+    public void forgotPassword(String email) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            String token = java.util.UUID.randomUUID().toString();
+            user.setResetToken(token);
+            user.setResetTokenExpiry(java.time.LocalDateTime.now().plusHours(1));
+            userRepository.save(user);
+
+            String resetLink = "http://localhost:3000/reset-password?token=" + token;
+            emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
+        }
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        if (token == null || token.isEmpty()) {
+            throw new BadRequestException("Token is required");
+        }
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new BadRequestException("Invalid or expired token"));
+
+        if (user.getResetTokenExpiry() == null || user.getResetTokenExpiry().isBefore(java.time.LocalDateTime.now())) {
+            throw new BadRequestException("Invalid or expired token");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
     }
 }

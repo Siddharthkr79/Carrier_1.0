@@ -53,14 +53,24 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody EmailRequest request) {
-        // Implementation for password reset
-        return ResponseEntity.ok(new MessageResponse("Password reset link sent"));
+        try {
+            authService.forgotPassword(request.email);
+            return ResponseEntity.ok(new MessageResponse("Password reset link sent"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest request) {
-        // Implementation for password reset
-        return ResponseEntity.ok(new MessageResponse("Password reset successfully"));
+        try {
+            authService.resetPassword(request.token, request.password);
+            return ResponseEntity.ok(new MessageResponse("Password reset successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
     }
 }
 

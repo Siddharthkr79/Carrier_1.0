@@ -197,6 +197,43 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  const mockResetTokens = {};
+
+  // FORGOT / RESET PASSWORD
+  if (pathname === '/api/auth/forgot-password' && req.method === 'POST') {
+    parseBody(req, (data) => {
+      const email = data.email;
+      if (email) {
+        const token = 'mock_reset_' + Math.random().toString(36).substring(2, 10);
+        mockResetTokens[token] = {
+          email: email,
+          expiry: Date.now() + 3600000
+        };
+        console.log("=========================================");
+        console.log("MOCK PASSWORD RESET EMAIL SENT TO: " + email);
+        console.log("Reset Link: http://localhost:3000/reset-password?token=" + token);
+        console.log("=========================================");
+      }
+      sendJson(res, 200, { message: 'Password reset link sent' });
+    });
+    return;
+  }
+
+  if (pathname === '/api/auth/reset-password' && req.method === 'POST') {
+    parseBody(req, (data) => {
+      const { token, password } = data;
+      const record = mockResetTokens[token];
+      if (!record || record.expiry < Date.now()) {
+        sendJson(res, 400, { message: 'Invalid or expired token' });
+        return;
+      }
+      console.log(`Password reset successfully for ${record.email}`);
+      delete mockResetTokens[token];
+      sendJson(res, 200, { message: 'Password reset successfully' });
+    });
+    return;
+  }
+
   // MENTOR ENDPOINTS
   if (pathname === '/api/mentors/profile' && req.method === 'GET') {
     const token = req.headers.authorization?.split(' ')[1];

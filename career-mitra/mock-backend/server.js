@@ -203,6 +203,52 @@ app.get('/api/auth/verify', (req, res) => {
   });
 });
 
+const mockResetTokens = {};
+
+app.post('/api/auth/forgot-password', (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  const user = users.students.find(u => u.email === email) || users.mentors.find(u => u.email === email);
+  if (user) {
+    const token = 'mock_reset_' + Math.random().toString(36).substring(2, 10);
+    mockResetTokens[token] = {
+      email: email,
+      expiry: Date.now() + 3600000
+    };
+    console.log("=========================================");
+    console.log("MOCK PASSWORD RESET EMAIL SENT TO: " + email);
+    console.log("Reset Link: http://localhost:3000/reset-password?token=" + token);
+    console.log("=========================================");
+  }
+
+  res.json({ message: 'Password reset link sent' });
+});
+
+app.post('/api/auth/reset-password', (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) {
+    return res.status(400).json({ message: 'Token and password are required' });
+  }
+
+  const record = mockResetTokens[token];
+  if (!record || record.expiry < Date.now()) {
+    return res.status(400).json({ message: 'Invalid or expired token' });
+  }
+
+  let user = users.students.find(u => u.email === record.email) || users.mentors.find(u => u.email === record.email);
+  if (user) {
+    user.password = password;
+  }
+
+  console.log(`Password reset successfully for ${record.email}`);
+  delete mockResetTokens[token];
+
+  res.json({ message: 'Password reset successfully' });
+});
+
 app.get('/api/mentors/profile', (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   const loggedInUser = activeSessions[token] || users.mentors[0];

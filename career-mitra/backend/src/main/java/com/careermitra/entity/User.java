@@ -36,6 +36,12 @@ public class User {
     @Column(name = "is_active", columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isActive = true;
 
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Student student;
 
