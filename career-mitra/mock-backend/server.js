@@ -62,9 +62,36 @@ const users = {
 };
 
 const activeSessions = {};
-const bookings = [];
+const bookings = [
+  {
+    id: 1,
+    mentorId: 1,
+    studentId: 1,
+    studentName: 'John Student',
+    sessionDate: '2026-06-02',
+    timeSlot: '09:00-10:00',
+    topic: 'React Hooks Deep Dive',
+    description: 'Help with custom hooks and context API',
+    amount: 2000,
+    status: 'COMPLETED',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 2,
+    mentorId: 1,
+    studentId: 1,
+    studentName: 'John Student',
+    sessionDate: '2026-06-03',
+    timeSlot: '14:00-15:00',
+    topic: 'System Design Mock',
+    description: 'System design mock interview',
+    amount: 3000,
+    status: 'COMPLETED',
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+  }
+];
 const reviews = [];
-let nextBookingId = 1;
+let nextBookingId = 3;
 let nextReviewId = 1;
 let authToken = '';
 
@@ -336,11 +363,13 @@ app.get('/api/reviews/mentor/:mentorId', (req, res) => {
 // ===== ADMIN ENDPOINTS =====
 
 app.get('/api/admin/dashboard', (req, res) => {
+  const totalRevenue = bookings.filter(b => b.status === 'COMPLETED').reduce((sum, b) => sum + (b.amount || 0), 0);
   res.json({
     totalUsers: users.students.length + users.mentors.length,
     totalMentors: users.mentors.length,
     totalSessions: bookings.length,
-    totalRevenue: bookings.reduce((sum, b) => sum + (b.amount || 0), 0)
+    totalRevenue: totalRevenue,
+    platformEarnings: totalRevenue * 0.15
   });
 });
 
@@ -358,6 +387,25 @@ app.post('/api/payments', (req, res) => {
 
 app.post('/api/payments/verify', (req, res) => {
   res.json({ message: 'Payment verified successfully' });
+});
+
+app.get('/api/payments/history', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  const loggedInUser = activeSessions[token] || users.mentors[0];
+  const role = loggedInUser?.role || 'MENTOR';
+
+  const paymentsList = bookings.map(b => {
+    const amount = role === 'MENTOR' ? (b.amount || 0) * 0.85 : (b.amount || 0);
+    return {
+      id: b.id,
+      bookingId: b.id,
+      amount: amount,
+      status: b.status === 'COMPLETED' || b.status === 'APPROVED' ? 'COMPLETED' : 'PENDING',
+      createdAt: b.createdAt || new Date().toISOString()
+    };
+  });
+  
+  res.json(paymentsList);
 });
 
 // ===== AVAILABILITY ENDPOINTS =====
@@ -389,6 +437,13 @@ app.get('/api/availability/:mentorId', (req, res) => {
 });
 
 app.post('/api/availability', (req, res) => {
+  const { startTime, endTime } = req.body;
+  if (!startTime || !endTime) {
+    return res.status(400).json({ message: 'Start time and end time are required' });
+  }
+  if (startTime >= endTime) {
+    return res.status(400).json({ message: 'Start time must be before end time' });
+  }
   res.status(201).json(req.body);
 });
 

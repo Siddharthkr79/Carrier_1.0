@@ -12,4 +12,5 @@ public class DashboardStatsDTO {
     private Long totalMentors;
     private Long totalSessions;
     private Double totalRevenue;
+    private Double platformEarnings;
 }

@@ -113,8 +113,15 @@ public class PaymentController {
                 payments = paymentRepository.findAll();
             }
             
+            final String role = userDto.getRole();
             List<PaymentDTO> dtos = payments.stream()
-                    .map(this::convertToDTO)
+                    .map(p -> {
+                        PaymentDTO dto = convertToDTO(p);
+                        if (role.equals("MENTOR")) {
+                            dto.setAmount(p.getAmount() != null ? p.getAmount() * 0.85 : 0.0);
+                        }
+                        return dto;
+                    })
                     .collect(Collectors.toList());
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {

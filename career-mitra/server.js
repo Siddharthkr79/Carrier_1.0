@@ -316,11 +316,13 @@ const server = http.createServer((req, res) => {
 
   // ADMIN ENDPOINTS
   if (pathname === '/api/admin/dashboard' && req.method === 'GET') {
+    const totalRev = bookings.reduce((sum, b) => sum + (b.amount || 0), 0) + 4500;
     sendJson(res, 200, {
       totalUsers: users.students.length + users.mentors.length,
       totalMentors: users.mentors.length,
-      totalSessions: bookings.length,
-      totalRevenue: 0
+      totalSessions: bookings.length + 2,
+      totalRevenue: totalRev,
+      platformEarnings: totalRev * 0.15
     });
     return;
   }
@@ -357,6 +359,28 @@ const server = http.createServer((req, res) => {
 
   if (pathname === '/api/payments/verify' && req.method === 'POST') {
     sendJson(res, 200, { message: 'Payment verified successfully' });
+    return;
+  }
+
+  if (pathname === '/api/payments/history' && req.method === 'GET') {
+    const token = req.headers.authorization?.split(' ')[1];
+    const loggedInUser = activeSessions[token] || users.mentors[0];
+    const role = loggedInUser?.role || 'MENTOR';
+
+    const basePayments = [
+      { id: 1, bookingId: 1, amount: role === 'MENTOR' ? 2000 * 0.85 : 2000, status: 'COMPLETED', createdAt: new Date(Date.now() - 2*24*3600*1000).toISOString() },
+      { id: 2, bookingId: 2, amount: role === 'MENTOR' ? 2500 * 0.85 : 2500, status: 'COMPLETED', createdAt: new Date(Date.now() - 24*3600*1000).toISOString() }
+    ];
+
+    const extraPayments = bookings.map((b, idx) => ({
+      id: 3 + idx,
+      bookingId: b.id,
+      amount: role === 'MENTOR' ? (b.amount || 0) * 0.85 : (b.amount || 0),
+      status: b.status === 'COMPLETED' || b.status === 'APPROVED' ? 'COMPLETED' : 'PENDING',
+      createdAt: b.createdAt || new Date().toISOString()
+    }));
+
+    sendJson(res, 200, [...basePayments, ...extraPayments]);
     return;
   }
 

@@ -35,6 +35,15 @@ public class AvailabilityController {
     @PostMapping
     public ResponseEntity<?> addAvailability(@RequestBody AvailabilityDTO dto) {
         try {
+            if (dto.getStartTime() == null || dto.getEndTime() == null) {
+                throw new IllegalArgumentException("Start time and end time are required");
+            }
+            java.time.LocalTime start = java.time.LocalTime.parse(dto.getStartTime());
+            java.time.LocalTime end = java.time.LocalTime.parse(dto.getEndTime());
+            if (!start.isBefore(end)) {
+                throw new IllegalArgumentException("Start time must be before end time");
+            }
+
             Mentor mentor = mentorRepository.findById(dto.getMentorId())
                     .orElseThrow(() -> new RuntimeException("Mentor not found"));
 
@@ -55,6 +64,15 @@ public class AvailabilityController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateAvailability(@PathVariable Long id, @RequestBody AvailabilityDTO dto) {
         try {
+            if (dto.getStartTime() == null || dto.getEndTime() == null) {
+                throw new IllegalArgumentException("Start time and end time are required");
+            }
+            java.time.LocalTime start = java.time.LocalTime.parse(dto.getStartTime());
+            java.time.LocalTime end = java.time.LocalTime.parse(dto.getEndTime());
+            if (!start.isBefore(end)) {
+                throw new IllegalArgumentException("Start time must be before end time");
+            }
+
             AvailabilitySlot slot = availabilitySlotRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Availability slot not found"));
 

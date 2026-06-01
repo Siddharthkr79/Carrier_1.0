@@ -28,15 +28,27 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
+  const formatAmount = (val) => {
+    return `₹${((val || 0) / (val > 100000 ? 100000 : 1)).toFixed(val > 100000 ? 1 : 0)}${val > 100000 ? 'L' : ''}`;
+  };
+
+  const platformEarn = stats.platformEarnings !== undefined ? stats.platformEarnings : (stats.totalRevenue || 0) * 0.15;
+
   const statItems = [
     { label: 'Total users', value: stats.totalUsers || 0, icon: FiUsers, color: 'text-brand-600 bg-brand-50' },
     { label: 'Total mentors', value: stats.totalMentors || 0, icon: FiUsers, color: 'text-emerald-600 bg-emerald-50' },
     { label: 'Active bookings', value: stats.totalSessions || stats.activeBookings || 0, icon: FiCalendar, color: 'text-violet-600 bg-violet-50' },
     {
-      label: 'Total revenue',
-      value: `₹${((stats.totalRevenue || 0) / (stats.totalRevenue > 100000 ? 100000 : 1)).toFixed(stats.totalRevenue > 100000 ? 1 : 0)}${stats.totalRevenue > 100000 ? 'L' : ''}`,
+      label: 'Total Transactions',
+      value: formatAmount(stats.totalRevenue),
       icon: FiDollarSign,
       color: 'text-amber-600 bg-amber-50',
+    },
+    {
+      label: 'Platform Earnings (15%)',
+      value: formatAmount(platformEarn),
+      icon: FiDollarSign,
+      color: 'text-indigo-600 bg-indigo-50',
     },
   ];
 
@@ -49,7 +61,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
         {statItems.map((stat, i) => {
           const Icon = stat.icon;
           return (
@@ -125,8 +137,12 @@ const AdminDashboard = () => {
             <h3 className="text-sm font-semibold text-ink-900 mb-4">Platform stats</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center p-3 bg-surface-50 rounded-lg border border-surface-100">
-                <span className="text-xs text-ink-600">Total revenue</span>
+                <span className="text-xs text-ink-600">Total Transactions</span>
                 <span className="text-sm font-semibold text-ink-900">₹{(stats.totalRevenue || 0).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-surface-50 rounded-lg border border-surface-100">
+                <span className="text-xs text-ink-600">Platform Earnings (15%)</span>
+                <span className="text-sm font-semibold text-ink-900">₹{(platformEarn).toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-surface-50 rounded-lg border border-surface-100">
                 <span className="text-xs text-ink-600">Total sessions</span>

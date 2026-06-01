@@ -185,6 +185,11 @@ const MentorProfile = () => {
       return;
     }
 
+    if (newSlot.startTime >= newSlot.endTime) {
+      toast.error('Start time must be before end time.');
+      return;
+    }
+
     try {
       const payload = { ...newSlot, mentorId: mentorId };
       await availabilityService.create(payload);
@@ -196,7 +201,8 @@ const MentorProfile = () => {
       });
       fetchProfile();
     } catch (error) {
-      toast.error('Failed to add availability');
+      const errorMessage = error.response?.data?.message || 'Failed to add availability';
+      toast.error(errorMessage);
     }
   };
 

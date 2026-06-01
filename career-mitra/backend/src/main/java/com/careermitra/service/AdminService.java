@@ -32,7 +32,9 @@ public class AdminService {
                 .mapToDouble(p -> p.getAmount() != null ? p.getAmount() : 0)
                 .sum();
 
-        return new DashboardStatsDTO(totalUsers, totalMentors, totalSessions, totalRevenue);
+        double platformEarnings = totalRevenue * 0.15;
+
+        return new DashboardStatsDTO(totalUsers, totalMentors, totalSessions, totalRevenue, platformEarnings);
     }
 
     public void blockUser(Long userId) {
