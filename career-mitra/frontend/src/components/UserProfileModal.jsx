@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiUser, FiMail, FiBookOpen, FiBriefcase, FiDollarSign, FiStar, FiAward, FiCheckCircle, FiSlash, FiX } from 'react-icons/fi';
+import { BACKEND_URL } from '../services';
 
 const UserProfileModal = ({ isOpen, onClose, user }) => {
   if (!isOpen || !user) return null;
@@ -157,6 +158,37 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
                 </div>
                 <div className="w-1.5 h-1.5 rounded-full bg-surface-200" />
                 <span className="text-xs font-bold text-ink-600">{reviewCount} total sessions reviewed</span>
+              </div>
+
+              {/* Verification Details */}
+              <div className="space-y-2">
+                <span className="text-3xs font-bold text-ink-500 uppercase tracking-wider block">Verification Details</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {profile.linkedinUrl && (
+                    <a
+                      href={profile.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-brand-600 hover:text-brand-700 font-bold bg-brand-50 border border-brand-100 rounded-xl p-3 flex items-center justify-center gap-2 hover:shadow-card transition-all"
+                    >
+                      🔗 LinkedIn Profile
+                    </a>
+                  )}
+                  {profile.supportiveDocumentUrl ? (
+                    <a
+                      href={profile.supportiveDocumentUrl.startsWith('http') ? profile.supportiveDocumentUrl : (BACKEND_URL + profile.supportiveDocumentUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-indigo-600 hover:text-indigo-700 font-bold bg-indigo-50 border border-indigo-100 rounded-xl p-3 flex items-center justify-center gap-2 hover:shadow-card transition-all"
+                    >
+                      📄 Verification Document
+                    </a>
+                  ) : (
+                    <span className="text-xs text-rose-600 font-bold bg-rose-50 border border-rose-100 rounded-xl p-3 flex items-center justify-center gap-2">
+                      ⚠️ No Document Uploaded
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Skills */}

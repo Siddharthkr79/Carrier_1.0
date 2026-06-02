@@ -25,6 +25,13 @@ export const mentorService = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
+  uploadDocument: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/mentors/upload-document', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // Booking APIs

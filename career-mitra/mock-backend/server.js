@@ -336,7 +336,11 @@ app.put('/api/mentors/:id', (req, res) => {
 });
 
 app.post('/api/mentors/upload-photo', (req, res) => {
-  res.json({ message: 'Photo uploaded successfully' });
+  res.json({ message: 'Photo uploaded successfully', photoUrl: '/uploads/mentors/mock-photo.jpg' });
+});
+
+app.post('/api/mentors/upload-document', (req, res) => {
+  res.json({ message: 'Document uploaded successfully', supportiveDocumentUrl: '/uploads/mentors/mock-document.pdf' });
 });
 
 // ===== BOOKING ENDPOINTS =====

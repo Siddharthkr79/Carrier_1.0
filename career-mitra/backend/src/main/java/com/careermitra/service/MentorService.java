@@ -64,6 +64,8 @@ public class MentorService {
         mentor.setDomain(dto.getDomain());
         mentor.setYearsOfExperience(dto.getYearsOfExperience());
         mentor.setSessionPrice(dto.getSessionPrice());
+        mentor.setLinkedinUrl(dto.getLinkedinUrl());
+        mentor.setSupportiveDocumentUrl(dto.getSupportiveDocumentUrl());
 
         try {
             if (dto.getSkills() != null) {
@@ -91,6 +93,8 @@ public class MentorService {
         mentor.setDomain(dto.getDomain());
         mentor.setYearsOfExperience(dto.getYearsOfExperience());
         mentor.setSessionPrice(dto.getSessionPrice());
+        mentor.setLinkedinUrl(dto.getLinkedinUrl());
+        mentor.setSupportiveDocumentUrl(dto.getSupportiveDocumentUrl());
         if (dto.getPhotoUrl() != null && !dto.getPhotoUrl().startsWith("data:image")) {
             mentor.setPhotoUrl(dto.getPhotoUrl());
         }

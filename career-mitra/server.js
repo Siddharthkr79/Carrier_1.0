@@ -308,7 +308,12 @@ const server = http.createServer((req, res) => {
   }
 
   if (pathname === '/api/mentors/upload-photo' && req.method === 'POST') {
-    sendJson(res, 200, { message: 'Photo uploaded successfully' });
+    sendJson(res, 200, { message: 'Photo uploaded successfully', photoUrl: '/uploads/mentors/mock-photo.jpg' });
+    return;
+  }
+
+  if (pathname === '/api/mentors/upload-document' && req.method === 'POST') {
+    sendJson(res, 200, { message: 'Document uploaded successfully', supportiveDocumentUrl: '/uploads/mentors/mock-document.pdf' });
     return;
   }
 

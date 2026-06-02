@@ -37,6 +37,8 @@ const MentorProfile = () => {
     skills: [],
     expertise: [],
     photoUrl: '',
+    linkedinUrl: '',
+    supportiveDocumentUrl: '',
   });
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [mentorId, setMentorId] = useState(null);
@@ -87,6 +89,8 @@ const MentorProfile = () => {
         skills: skillsArray,
         expertise: expertiseArray,
         photoUrl: data.photoUrl || '',
+        linkedinUrl: data.linkedinUrl || '',
+        supportiveDocumentUrl: data.supportiveDocumentUrl || '',
       });
       setSelectedCategories(selectedCats);
       setSkillsInput(customSkills.join(', '));
@@ -146,6 +150,21 @@ const MentorProfile = () => {
     }
   };
 
+  const handleDocumentUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const response = await mentorService.uploadDocument(file);
+        if (response.data && response.data.supportiveDocumentUrl) {
+          setFormData((prev) => ({ ...prev, supportiveDocumentUrl: response.data.supportiveDocumentUrl }));
+        }
+        toast.success('Supportive document uploaded successfully');
+      } catch (error) {
+        toast.error('Failed to upload supportive document');
+      }
+    }
+  };
+
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -153,6 +172,12 @@ const MentorProfile = () => {
       toast.error('Cannot save profile: Mentor ID not found. Please reload.');
       return;
     }
+
+    if (!formData.supportiveDocumentUrl) {
+      toast.error('Supportive document is mandatory for verification.');
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -290,6 +315,21 @@ const MentorProfile = () => {
             </div>
           </div>
 
+          {/* LinkedIn Profile */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              LinkedIn Profile Link (Optional)
+            </label>
+            <input
+              type="url"
+              name="linkedinUrl"
+              value={formData.linkedinUrl || ''}
+              onChange={handleInputChange}
+              placeholder="https://linkedin.com/in/username"
+              className="input-field"
+            />
+          </div>
+
           {/* Exam Categories */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -340,6 +380,27 @@ const MentorProfile = () => {
               rows="2"
               className="input-field"
             />
+          </div>
+
+          {/* Supportive Document Upload */}
+          <div className="bg-surface-50 p-4 rounded-lg border border-surface-200">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Supportive Document (ID Badge, Resume, etc.) <span className="text-red-500 font-bold">*</span>
+            </label>
+            <div className="flex items-center gap-4">
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,image/*"
+                onChange={handleDocumentUpload}
+                className="input-field text-xs cursor-pointer"
+                required={!formData.supportiveDocumentUrl}
+              />
+              {formData.supportiveDocumentUrl && (
+                <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1 shrink-0">
+                  ✓ Document Uploaded
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Photo Upload with Preview */}

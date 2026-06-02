@@ -48,6 +48,12 @@ public class Mentor {
     @Column(name = "photo_url")
     private String photoUrl;
 
+    @Column(name = "linkedin_url")
+    private String linkedinUrl;
+
+    @Column(name = "supportive_document_url")
+    private String supportiveDocumentUrl;
+
     @Column(name = "rating")
     private Double rating = 0.0;
 

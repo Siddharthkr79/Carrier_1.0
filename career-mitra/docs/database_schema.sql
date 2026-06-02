@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS mentors (
     skills JSON,
     expertise JSON,
     photo_url VARCHAR(500),
+    linkedin_url VARCHAR(500),
+    supportive_document_url VARCHAR(500),
     rating DECIMAL(3, 2) DEFAULT 0.0,
     review_count INT DEFAULT 0,
     status VARCHAR(20) DEFAULT 'PENDING',

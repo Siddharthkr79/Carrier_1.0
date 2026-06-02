@@ -18,6 +18,8 @@ public class MentorDTO {
     private String[] skills;
     private String[] expertise;
     private String photoUrl;
+    private String linkedinUrl;
+    private String supportiveDocumentUrl;
     private Double rating;
     private Integer reviewCount;
     private String status;

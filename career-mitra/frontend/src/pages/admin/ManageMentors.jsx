@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { toast } from '../../utils/toast';
-import { adminService } from '../../services';
+import { adminService, BACKEND_URL } from '../../services';
 import { useAdminRoute } from '../../hooks/useProtectedRoute';
 import UserProfileModal from '../../components/UserProfileModal';
 
@@ -102,6 +102,34 @@ const ManageMentors = () => {
                 </div>
 
                 <p className="text-xs text-ink-600 mb-4 bg-surface-50 rounded-lg p-2.5 border border-surface-100">{mentor.bio}</p>
+
+                {/* Verification Info */}
+                <div className="flex flex-wrap gap-4 mb-4 text-xs font-semibold">
+                  {mentor.linkedinUrl && (
+                    <a
+                      href={mentor.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-600 hover:text-brand-700 bg-brand-50 border border-brand-100 rounded-lg px-2.5 py-1 flex items-center gap-1 hover:shadow-2xs transition-all"
+                    >
+                      🔗 LinkedIn Profile
+                    </a>
+                  )}
+                  {mentor.supportiveDocumentUrl ? (
+                    <a
+                      href={mentor.supportiveDocumentUrl.startsWith('http') ? mentor.supportiveDocumentUrl : (BACKEND_URL + mentor.supportiveDocumentUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-indigo-600 hover:text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-lg px-2.5 py-1 flex items-center gap-1 hover:shadow-2xs transition-all"
+                    >
+                      📄 Verification Document
+                    </a>
+                  ) : (
+                    <span className="text-rose-600 bg-rose-50 border border-rose-100 rounded-lg px-2.5 py-1 flex items-center gap-1">
+                      ⚠️ No Document Uploaded
+                    </span>
+                  )}
+                </div>
 
                 <div className="flex gap-2">
                   <button

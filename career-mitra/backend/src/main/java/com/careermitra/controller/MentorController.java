@@ -133,6 +133,39 @@ public class MentorController {
                     .body(new ErrorResponse(e.getMessage()));
         }
     }
+
+    @PostMapping("/upload-document")
+    public ResponseEntity<?> uploadDocument(@RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) {
+        try {
+            String cleanToken = token.replace("Bearer ", "");
+            com.careermitra.dto.UserDTO userDto = authService.verifyToken(cleanToken);
+
+            com.careermitra.entity.Mentor mentor = mentorRepository.findByUserId(userDto.getId())
+                    .orElseThrow(() -> new RuntimeException("Mentor not found"));
+
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("No file uploaded"));
+            }
+
+            String uploadsDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator + "mentors" + File.separator;
+            File dir = new File(uploadsDir);
+            if (!dir.exists()) dir.mkdirs();
+
+            String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path targetPath = Paths.get(uploadsDir + filename);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            String urlPath = "/uploads/mentors/" + filename;
+            mentor.setSupportiveDocumentUrl(urlPath);
+            mentorRepository.save(mentor);
+
+            return ResponseEntity.ok(new DocumentUploadResponse("Document uploaded successfully", urlPath));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
+    }
 }
 
 class PhotoUploadResponse {
@@ -142,6 +175,16 @@ class PhotoUploadResponse {
     public PhotoUploadResponse(String message, String photoUrl) {
         this.message = message;
         this.photoUrl = photoUrl;
+    }
+}
+
+class DocumentUploadResponse {
+    public String message;
+    public String supportiveDocumentUrl;
+
+    public DocumentUploadResponse(String message, String supportiveDocumentUrl) {
+        this.message = message;
+        this.supportiveDocumentUrl = supportiveDocumentUrl;
     }
 }
 
