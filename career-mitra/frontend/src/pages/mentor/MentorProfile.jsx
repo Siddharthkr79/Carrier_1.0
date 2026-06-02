@@ -55,6 +55,16 @@ const MentorProfile = () => {
     fetchProfile();
   }, []);
 
+  const fetchAvailabilitySlots = async (id) => {
+    try {
+      const availRes = await availabilityService.getAll(id);
+      setAvailability(availRes.data || []);
+    } catch (err) {
+      console.error('Failed to fetch availability:', err);
+      setAvailability([]);
+    }
+  };
+
   const fetchProfile = async () => {
     try {
       setLoading(true);
@@ -88,13 +98,7 @@ const MentorProfile = () => {
         setMentorId(id);
         localStorage.setItem('mentorId', id);
         // Now fetch availability with the real mentorId
-        try {
-          const availRes = await availabilityService.getAll(id);
-          setAvailability(availRes.data || []);
-        } catch (err) {
-          console.error('Failed to fetch availability:', err);
-          setAvailability([]);
-        }
+        await fetchAvailabilitySlots(id);
       }
     } catch (error) {
       toast.error('Failed to fetch profile');
@@ -202,7 +206,7 @@ const MentorProfile = () => {
         startTime: '09:00',
         endTime: '10:00',
       });
-      fetchProfile();
+      fetchAvailabilitySlots(mentorId);
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to add availability';
       toast.error(errorMessage);
@@ -213,7 +217,7 @@ const MentorProfile = () => {
     try {
       await availabilityService.delete(id);
       toast.success('Availability slot removed');
-      fetchProfile();
+      fetchAvailabilitySlots(mentorId);
     } catch (error) {
       toast.error('Failed to remove availability');
     }
