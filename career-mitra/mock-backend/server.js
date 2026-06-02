@@ -38,7 +38,6 @@ const users = {
       expertise: ['Full Stack', 'System Design'],
       rating: 4.8,
       reviewCount: 25,
-      photoUrl: 'https://via.placeholder.com/150',
       status: 'APPROVED'
     },
     {
@@ -55,13 +54,18 @@ const users = {
       expertise: ['PM Skills', 'Career Growth'],
       rating: 4.9,
       reviewCount: 32,
-      photoUrl: 'https://via.placeholder.com/150',
       status: 'APPROVED'
     }
   ]
 };
 
 const activeSessions = {};
+const availabilitySlots = [
+  { id: 1, mentorId: 1, dayOfWeek: 'MONDAY', startTime: '09:00', endTime: '10:00' },
+  { id: 2, mentorId: 1, dayOfWeek: 'WEDNESDAY', startTime: '14:00', endTime: '15:00' },
+  { id: 3, mentorId: 1, dayOfWeek: 'FRIDAY', startTime: '16:00', endTime: '17:00' }
+];
+let nextAvailabilityId = 4;
 const bookings = [
   {
     id: 1,
@@ -362,15 +366,27 @@ app.post('/api/bookings', (req, res) => {
 });
 
 app.get('/api/bookings/available-slots/:mentorId', (req, res) => {
-  // Mock available slots
-  const slots = [
-    '09:00-10:00',
-    '10:00-11:00',
-    '14:00-15:00',
-    '15:00-16:00',
-    '16:00-17:00'
-  ];
-  res.json(slots);
+  const mentorId = parseInt(req.params.mentorId);
+  const dateParam = req.query.date;
+  
+  let allSlots = [];
+  if (dateParam) {
+    try {
+      const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+      const dayOfWeek = days[new Date(dateParam).getDay()];
+      const configuredSlots = availabilitySlots.filter(s => s.mentorId === mentorId && s.dayOfWeek === dayOfWeek);
+      allSlots = configuredSlots.map(s => `${s.startTime}-${s.endTime}`);
+    } catch (err) {
+      // Keep empty
+    }
+  }
+  
+  const bookedSlots = bookings
+    .filter(b => parseInt(b.mentorId) === mentorId && b.sessionDate === dateParam && b.status !== 'REJECTED')
+    .map(b => b.timeSlot);
+    
+  const available = allSlots.filter(s => !bookedSlots.includes(s));
+  res.json(available);
 });
 
 app.put('/api/bookings/:id/approve', (req, res) => {
@@ -558,40 +574,39 @@ app.get('/api/payments/history', (req, res) => {
 // ===== AVAILABILITY ENDPOINTS =====
 
 app.get('/api/availability/:mentorId', (req, res) => {
-  res.json([
-    {
-      id: 1,
-      mentorId: parseInt(req.params.mentorId),
-      dayOfWeek: 'MONDAY',
-      startTime: '09:00',
-      endTime: '18:00'
-    },
-    {
-      id: 2,
-      mentorId: parseInt(req.params.mentorId),
-      dayOfWeek: 'WEDNESDAY',
-      startTime: '09:00',
-      endTime: '18:00'
-    },
-    {
-      id: 3,
-      mentorId: parseInt(req.params.mentorId),
-      dayOfWeek: 'FRIDAY',
-      startTime: '09:00',
-      endTime: '18:00'
-    }
-  ]);
+  const mentorId = parseInt(req.params.mentorId);
+  const list = availabilitySlots.filter(s => s.mentorId === mentorId);
+  res.json(list);
 });
 
 app.post('/api/availability', (req, res) => {
-  const { startTime, endTime } = req.body;
+  const { mentorId, dayOfWeek, startTime, endTime } = req.body;
   if (!startTime || !endTime) {
     return res.status(400).json({ message: 'Start time and end time are required' });
   }
   if (startTime >= endTime) {
     return res.status(400).json({ message: 'Start time must be before end time' });
   }
-  res.status(201).json(req.body);
+  const newSlot = {
+    id: nextAvailabilityId++,
+    mentorId: parseInt(mentorId),
+    dayOfWeek: (dayOfWeek || 'MONDAY').toUpperCase(),
+    startTime,
+    endTime
+  };
+  availabilitySlots.push(newSlot);
+  res.status(201).json(newSlot);
+});
+
+app.delete('/api/availability/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const idx = availabilitySlots.findIndex(s => s.id === id);
+  if (idx !== -1) {
+    availabilitySlots.splice(idx, 1);
+    res.json({ message: 'Availability deleted' });
+  } else {
+    res.status(404).json({ message: 'Availability slot not found' });
+  }
 });
 
 // ===== ERROR HANDLING =====

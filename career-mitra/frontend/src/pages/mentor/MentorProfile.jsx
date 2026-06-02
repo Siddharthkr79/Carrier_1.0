@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from '../../utils/toast';
 import { mentorService, availabilityService, BACKEND_URL } from '../../services';
 import { useMentorRoute } from '../../hooks/useProtectedRoute';
+import { getInitials } from '../../utils/avatar';
 
 const getPhotoUrl = (url) => {
   if (!url) return 'https://via.placeholder.com/150';
@@ -27,6 +28,7 @@ const EXAM_CATEGORIES = [
 const MentorProfile = () => {
   useMentorRoute();
   const [formData, setFormData] = useState({
+    name: '',
     bio: '',
     company: '',
     yearsOfExperience: 0,
@@ -66,6 +68,7 @@ const MentorProfile = () => {
       const customSkills = skillsArray.filter(s => !EXAM_CATEGORIES.includes(s));
 
       setFormData({
+        name: data.name || '',
         bio: data.bio || '',
         company: data.company || '',
         yearsOfExperience: data.yearsOfExperience || 0,
@@ -337,11 +340,17 @@ const MentorProfile = () => {
 
           {/* Photo Upload with Preview */}
           <div className="flex items-center gap-4 bg-surface-50 p-4 rounded-lg border border-surface-200">
-            <img
-              src={getPhotoUrl(formData.photoUrl)}
-              alt="Profile Avatar"
-              className="w-16 h-16 rounded-full object-cover ring-2 ring-brand-500 shadow-soft"
-            />
+            {formData.photoUrl ? (
+              <img
+                src={getPhotoUrl(formData.photoUrl)}
+                alt="Profile Avatar"
+                className="w-16 h-16 rounded-full object-cover ring-2 ring-brand-500 shadow-soft shrink-0"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg shrink-0">
+                {getInitials(formData.name || 'Mentor')}
+              </div>
+            )}
             <div className="flex-1">
               <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                 Profile Photo

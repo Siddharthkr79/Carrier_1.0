@@ -134,6 +134,11 @@ const BookingPage = () => {
               min={new Date().toISOString().split('T')[0]}
               required
             />
+            {formData.sessionDate && slots.length === 0 && (
+              <p className="text-xs text-rose-600 font-semibold mt-1.5">
+                ⚠️ No slots available for this date. Please choose another date.
+              </p>
+            )}
           </div>
 
           {slots.length > 0 && (

@@ -147,13 +147,8 @@ public class BookingController {
             List<com.careermitra.entity.AvailabilitySlot> configuredSlots = availabilitySlotRepository.findByMentorAndDayOfWeek(mentor, dayOfWeek);
             
             List<String> allSlots = new java.util.ArrayList<>();
-            if (configuredSlots.isEmpty()) {
-                // Fallback to default working slots
-                allSlots.addAll(java.util.Arrays.asList("09:00-10:00", "10:00-11:00", "11:00-12:00", "14:00-15:00", "15:00-16:00", "16:00-17:00"));
-            } else {
-                for (com.careermitra.entity.AvailabilitySlot slot : configuredSlots) {
-                    allSlots.add(slot.getStartTime() + "-" + slot.getEndTime());
-                }
+            for (com.careermitra.entity.AvailabilitySlot slot : configuredSlots) {
+                allSlots.add(slot.getStartTime() + "-" + slot.getEndTime());
             }
             
             // Get active bookings
@@ -172,8 +167,8 @@ public class BookingController {
             
             return ResponseEntity.ok(available);
         } catch (Exception e) {
-            // If date parsing fails, fallback to default slots
-            return ResponseEntity.ok(java.util.Arrays.asList("09:00-10:00", "10:00-11:00", "14:00-15:00"));
+            // If date parsing fails, return empty list
+            return ResponseEntity.ok(new java.util.ArrayList<String>());
         }
     }
 }

@@ -15,7 +15,7 @@ const mapMentorData = (m) => {
     name: m.name,
     role: m.domain || 'Mentor',
     company: m.company || 'Tech Expert',
-    image: imageUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
+    image: imageUrl || null,
     skills: m.skills || [],
     experience: m.yearsOfExperience || 0,
     rating: m.rating || 5.0,

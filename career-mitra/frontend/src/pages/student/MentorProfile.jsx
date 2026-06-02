@@ -5,6 +5,7 @@ import { Badge } from '../../components/common/UIComponents';
 import { ReviewCard } from '../../components/Cards';
 import { mockMentors, mockReviews } from '../../data/mockData';
 import { mentorService, reviewService, BACKEND_URL } from '../../services';
+import { getInitials } from '../../utils/avatar';
 
 const mapMentorData = (m) => {
   let imageUrl = m.photoUrl;
@@ -16,7 +17,7 @@ const mapMentorData = (m) => {
     name: m.name,
     role: m.domain || 'Mentor',
     company: m.company || 'Tech Expert',
-    image: imageUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
+    image: imageUrl || null,
     skills: m.skills || [],
     experience: m.yearsOfExperience || 0,
     rating: m.rating || 5.0,
@@ -85,11 +86,17 @@ const MentorProfile = () => {
       {/* Profile Header */}
       <div className="bg-white border border-surface-200 rounded-xl p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-5">
-          <img
-            src={mentor.image}
-            alt={mentor.name}
-            className="w-20 h-20 rounded-xl object-cover ring-1 ring-surface-200"
-          />
+          {mentor.image ? (
+            <img
+              src={mentor.image}
+              alt={mentor.name}
+              className="w-20 h-20 rounded-xl object-cover ring-1 ring-surface-200"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xl shrink-0">
+              {getInitials(mentor.name)}
+            </div>
+          )}
           <div className="flex-1">
             <div className="flex items-start justify-between flex-wrap gap-3">
               <div>

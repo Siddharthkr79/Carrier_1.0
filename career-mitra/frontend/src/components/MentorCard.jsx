@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiStar, FiCalendar } from 'react-icons/fi';
+import { getInitials } from '../utils/avatar';
 
 export const MentorCard = ({ mentor }) => {
   return (
@@ -11,11 +12,17 @@ export const MentorCard = ({ mentor }) => {
       <div className="p-5">
         {/* Header */}
         <div className="flex items-start gap-3.5 mb-4">
-          <img
-            src={mentor.image}
-            alt={mentor.name}
-            className="w-12 h-12 rounded-full object-cover ring-1 ring-surface-200"
-          />
+          {mentor.image ? (
+            <img
+              src={mentor.image}
+              alt={mentor.name}
+              className="w-12 h-12 rounded-full object-cover ring-1 ring-surface-200 shrink-0"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-sm shrink-0">
+              {getInitials(mentor.name)}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-ink-900 truncate">{mentor.name}</h3>
