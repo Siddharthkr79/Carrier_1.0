@@ -6,6 +6,7 @@ import { useAuth } from './hooks/useAuth';
 import MainLayout from './layouts/MainLayout';
 import AuthLayout from './layouts/AuthLayout';
 import AdminLayout from './layouts/AdminLayout';
+import ToastContainer from './components/common/ToastContainer';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -69,6 +70,7 @@ const App = () => {
 
   return (
     <Router>
+      <ToastContainer />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<MainLayout><LandingPage /></MainLayout>} />

@@ -1,19 +1,19 @@
-// Simple toast utility that uses alerts instead of react-toastify
+// Simple toast utility that dispatches window events instead of native alerts
 export const toast = {
   success: (msg) => {
     console.log('✓ Success:', msg);
-    alert('✓ ' + msg);
+    window.dispatchEvent(new CustomEvent('custom-toast', { detail: { type: 'success', message: msg } }));
   },
   error: (msg) => {
     console.error('✗ Error:', msg);
-    alert('✗ Error: ' + msg);
+    window.dispatchEvent(new CustomEvent('custom-toast', { detail: { type: 'error', message: msg } }));
   },
   info: (msg) => {
     console.info('ℹ Info:', msg);
-    alert('ℹ ' + msg);
+    window.dispatchEvent(new CustomEvent('custom-toast', { detail: { type: 'info', message: msg } }));
   },
   warning: (msg) => {
     console.warn('⚠ Warning:', msg);
-    alert('⚠ ' + msg);
+    window.dispatchEvent(new CustomEvent('custom-toast', { detail: { type: 'warning', message: msg } }));
   }
 };
