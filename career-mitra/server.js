@@ -130,13 +130,29 @@ const server = http.createServer((req, res) => {
   // AUTH ENDPOINTS
   if (pathname === '/api/auth/login' && req.method === 'POST') {
     parseBody(req, (data) => {
+      // Find database user
+      let dbUser = mentors.find(m => m.email === data.email);
+      if (!dbUser) {
+        dbUser = users.students.find(s => s.email === data.email);
+      }
+
+      if (dbUser && dbUser.isActive === false) {
+        sendJson(res, 401, { message: 'Your account is blocked. Please contact support.' });
+        return;
+      }
+
       const token = 'mock_jwt_' + Date.now();
-      // Try to find existing user, fallback to new student
-      let loggedInUser = mentors.find(m => m.email === data.email);
-      if (loggedInUser) {
-        loggedInUser = { id: loggedInUser.id, name: loggedInUser.name, email: loggedInUser.email, role: 'MENTOR' };
+      let loggedInUser;
+      if (dbUser) {
+        loggedInUser = { id: dbUser.id, name: dbUser.name, email: dbUser.email, role: dbUser.role || (mentors.includes(dbUser) ? 'MENTOR' : 'STUDENT') };
       } else {
-        loggedInUser = { id: 1, name: 'John Student', email: data.email, role: 'STUDENT' };
+        const isDefaultAdmin = data.email.includes('admin');
+        loggedInUser = {
+          id: isDefaultAdmin ? 999 : 1,
+          name: isDefaultAdmin ? 'Admin User' : 'John Student',
+          email: data.email,
+          role: isDefaultAdmin ? 'ADMIN' : 'STUDENT'
+        };
       }
       activeSessions[token] = loggedInUser;
       sendJson(res, 200, {
@@ -154,7 +170,8 @@ const server = http.createServer((req, res) => {
         id: Date.now(),
         name: data.name,
         email: data.email,
-        role: data.role
+        role: data.role,
+        isActive: true
       };
 
       if (data.role === 'MENTOR') {
@@ -171,7 +188,16 @@ const server = http.createServer((req, res) => {
           expertise: [],
           rating: 0,
           reviewCount: 0,
-          status: 'PENDING'
+          status: 'PENDING',
+          isActive: true
+        });
+      } else {
+        users.students.push({
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          role: 'STUDENT',
+          isActive: true
         });
       }
 
@@ -186,13 +212,21 @@ const server = http.createServer((req, res) => {
 
   if (pathname === '/api/auth/verify' && req.method === 'GET') {
     const token = req.headers.authorization?.split(' ')[1];
-    const loggedInUser = activeSessions[token] || {
-      id: 1,
-      name: 'John Student',
-      email: 'student@example.com',
-      role: 'STUDENT',
-      isActive: true
-    };
+    const loggedInUser = activeSessions[token];
+    if (!loggedInUser) {
+      sendJson(res, 401, { message: 'Unauthorized' });
+      return;
+    }
+
+    let dbUser = mentors.find(m => m.id === loggedInUser.id || m.email === loggedInUser.email);
+    if (!dbUser) {
+      dbUser = users.students.find(s => s.id === loggedInUser.id || s.email === loggedInUser.email);
+    }
+    if (dbUser && dbUser.isActive === false) {
+      sendJson(res, 401, { message: 'Your account is blocked. Please contact support.' });
+      return;
+    }
+
     sendJson(res, 200, loggedInUser);
     return;
   }
@@ -361,6 +395,102 @@ const server = http.createServer((req, res) => {
       totalRevenue: totalRev,
       platformEarnings: totalRev * 0.15
     });
+    return;
+  }
+
+  if (pathname === '/api/admin/users' && req.method === 'GET') {
+    const list = [];
+    users.students.forEach(s => {
+      list.push({
+        id: s.id,
+        name: s.name,
+        email: s.email,
+        role: 'STUDENT',
+        isActive: s.isActive !== false,
+        student: {
+          id: s.id,
+          name: s.name,
+          bio: s.bio || 'Aspiring Software Engineer',
+          college: s.college || 'MIT',
+          major: s.major || 'Computer Science',
+          yearOfStudy: s.yearOfStudy || 3
+        }
+      });
+    });
+    mentors.forEach(m => {
+      list.push({
+        id: m.id,
+        name: m.name,
+        email: m.email,
+        role: 'MENTOR',
+        isActive: m.isActive !== false,
+        mentor: m
+      });
+    });
+    sendJson(res, 200, list);
+    return;
+  }
+
+  if (pathname === '/api/admin/mentors' && req.method === 'GET') {
+    sendJson(res, 200, mentors);
+    return;
+  }
+
+  if (pathname.startsWith('/api/admin/users/') && pathname.endsWith('/block') && req.method === 'PUT') {
+    const parts = pathname.split('/');
+    const id = parseInt(parts[4]);
+    let user = users.students.find(s => s.id === id);
+    if (!user) {
+      user = mentors.find(m => m.id === id);
+    }
+    if (user) {
+      user.isActive = false;
+      sendJson(res, 200, { message: 'User blocked' });
+    } else {
+      sendJson(res, 404, { message: 'User not found' });
+    }
+    return;
+  }
+
+  if (pathname.startsWith('/api/admin/users/') && pathname.endsWith('/unblock') && req.method === 'PUT') {
+    const parts = pathname.split('/');
+    const id = parseInt(parts[4]);
+    let user = users.students.find(s => s.id === id);
+    if (!user) {
+      user = mentors.find(m => m.id === id);
+    }
+    if (user) {
+      user.isActive = true;
+      sendJson(res, 200, { message: 'User unblocked' });
+    } else {
+      sendJson(res, 404, { message: 'User not found' });
+    }
+    return;
+  }
+
+  if (pathname.startsWith('/api/admin/mentors/') && pathname.endsWith('/approve') && req.method === 'PUT') {
+    const parts = pathname.split('/');
+    const id = parseInt(parts[4]);
+    const mentor = mentors.find(m => m.id === id);
+    if (mentor) {
+      mentor.status = 'APPROVED';
+      sendJson(res, 200, { message: 'Mentor approved' });
+    } else {
+      sendJson(res, 404, { message: 'Mentor not found' });
+    }
+    return;
+  }
+
+  if (pathname.startsWith('/api/admin/mentors/') && pathname.endsWith('/reject') && req.method === 'PUT') {
+    const parts = pathname.split('/');
+    const id = parseInt(parts[4]);
+    const mentor = mentors.find(m => m.id === id);
+    if (mentor) {
+      mentor.status = 'REJECTED';
+      sendJson(res, 200, { message: 'Mentor rejected' });
+    } else {
+      sendJson(res, 404, { message: 'Mentor not found' });
+    }
     return;
   }
 

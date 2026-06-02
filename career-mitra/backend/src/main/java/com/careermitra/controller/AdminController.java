@@ -51,7 +51,18 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userRepository.findAll().stream()
-                .map(u -> modelMapper.map(u, UserDTO.class))
+                .map(u -> {
+                    UserDTO dto = modelMapper.map(u, UserDTO.class);
+                    if (u.getStudent() != null) {
+                        StudentDTO studentDTO = modelMapper.map(u.getStudent(), StudentDTO.class);
+                        studentDTO.setName(u.getName());
+                        dto.setStudent(studentDTO);
+                    }
+                    if (u.getMentor() != null) {
+                        dto.setMentor(mentorService.convertToDTO(u.getMentor()));
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
         return ResponseEntity.ok(users);
     }

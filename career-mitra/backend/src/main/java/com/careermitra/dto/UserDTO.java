@@ -13,4 +13,6 @@ public class UserDTO {
     private String email;
     private String role;
     private Boolean isActive;
+    private StudentDTO student;
+    private MentorDTO mentor;
 }

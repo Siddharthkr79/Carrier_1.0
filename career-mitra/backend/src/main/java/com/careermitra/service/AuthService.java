@@ -51,6 +51,10 @@ public class AuthService {
             throw new UnauthorizedException("Invalid credentials");
         }
 
+        if (user.getIsActive() != null && !user.getIsActive()) {
+            throw new UnauthorizedException("Your account is blocked. Please contact support.");
+        }
+
         // Generate token (simplified - normally would use Spring Security)
         String token = jwtTokenProvider.generateToken(user.getEmail());
 
@@ -94,6 +98,10 @@ public class AuthService {
         String email = jwtTokenProvider.getUsernameFromToken(token);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getIsActive() != null && !user.getIsActive()) {
+            throw new UnauthorizedException("Your account is blocked. Please contact support.");
+        }
 
         return modelMapper.map(user, UserDTO.class);
     }

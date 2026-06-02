@@ -3,11 +3,13 @@ import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { toast } from '../../utils/toast';
 import { adminService } from '../../services';
 import { useAdminRoute } from '../../hooks/useProtectedRoute';
+import UserProfileModal from '../../components/UserProfileModal';
 
 const ManageMentors = () => {
   useAdminRoute();
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMentor, setSelectedMentor] = useState(null);
 
   useEffect(() => {
     fetchMentors();
@@ -78,7 +80,12 @@ const ManageMentors = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                   <div>
                     <p className="text-2xs font-semibold text-ink-500 uppercase tracking-wider mb-0.5">Name</p>
-                    <p className="text-sm font-semibold text-ink-900">{mentor.name}</p>
+                    <button
+                      onClick={() => setSelectedMentor({ ...mentor, role: 'MENTOR', mentor: mentor })}
+                      className="text-sm font-semibold text-ink-900 hover:text-brand-600 transition-colors text-left"
+                    >
+                      {mentor.name}
+                    </button>
                   </div>
                   <div>
                     <p className="text-2xs font-semibold text-ink-500 uppercase tracking-wider mb-0.5">Domain</p>
@@ -111,6 +118,12 @@ const ManageMentors = () => {
                     <FiXCircle size={13} />
                     Decline
                   </button>
+                  <button
+                    onClick={() => setSelectedMentor({ ...mentor, role: 'MENTOR', mentor: mentor })}
+                    className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition-colors ml-auto"
+                  >
+                    View Full Profile
+                  </button>
                 </div>
               </div>
             ))}
@@ -142,7 +155,14 @@ const ManageMentors = () => {
                 <tbody>
                   {approvedMentors.map((mentor) => (
                     <tr key={mentor.id} className="border-b border-surface-50 last:border-0 hover:bg-surface-50 transition-colors">
-                      <td className="px-5 py-3 text-sm font-medium text-ink-900">{mentor.name}</td>
+                      <td className="px-5 py-3 text-sm font-medium text-ink-900">
+                        <button
+                          onClick={() => setSelectedMentor({ ...mentor, role: 'MENTOR', mentor: mentor })}
+                          className="hover:text-brand-600 font-semibold text-left transition-colors"
+                        >
+                          {mentor.name}
+                        </button>
+                      </td>
                       <td className="px-5 py-3 text-sm text-ink-700">{mentor.domain}</td>
                       <td className="px-5 py-3 text-sm text-ink-600">{mentor.yearsOfExperience} years</td>
                       <td className="px-5 py-3">
@@ -159,6 +179,12 @@ const ManageMentors = () => {
           </div>
         )}
       </div>
+
+      <UserProfileModal
+        isOpen={!!selectedMentor}
+        onClose={() => setSelectedMentor(null)}
+        user={selectedMentor}
+      />
     </div>
   );
 };

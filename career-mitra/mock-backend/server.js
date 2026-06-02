@@ -169,6 +169,10 @@ app.post('/api/auth/login', (req, res) => {
   if (!user) {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
+
+  if (user.isActive === false) {
+    return res.status(401).json({ message: 'Your account is blocked. Please contact support.' });
+  }
   
   const token = 'mock_jwt_token_' + Date.now();
   authToken = token;
@@ -192,7 +196,18 @@ app.get('/api/auth/verify', (req, res) => {
     return res.status(401).json({ message: 'Token required' });
   }
   
-  const user = activeSessions[token] || users.students[0] || users.mentors[0];
+  const user = activeSessions[token];
+  if (!user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  let dbUser = users.students.find(s => s.id === user.id || s.email === user.email);
+  if (!dbUser) {
+    dbUser = users.mentors.find(m => m.id === user.id || m.email === user.email);
+  }
+  if (dbUser && dbUser.isActive === false) {
+    return res.status(401).json({ message: 'Your account is blocked. Please contact support.' });
+  }
   
   res.json({
     id: user.id,
@@ -417,6 +432,92 @@ app.get('/api/admin/dashboard', (req, res) => {
     totalRevenue: totalRevenue,
     platformEarnings: totalRevenue * 0.15
   });
+});
+
+app.get('/api/admin/users', (req, res) => {
+  const list = [];
+  users.students.forEach(s => {
+    list.push({
+      id: s.id,
+      name: s.name,
+      email: s.email,
+      role: 'STUDENT',
+      isActive: s.isActive !== false,
+      student: {
+        id: s.id,
+        name: s.name,
+        bio: s.bio || 'Aspiring Software Engineer',
+        college: s.college || 'MIT',
+        major: s.major || 'Computer Science',
+        yearOfStudy: s.yearOfStudy || 3
+      }
+    });
+  });
+  users.mentors.forEach(m => {
+    list.push({
+      id: m.id,
+      name: m.name,
+      email: m.email,
+      role: 'MENTOR',
+      isActive: m.isActive !== false,
+      mentor: m
+    });
+  });
+  res.json(list);
+});
+
+app.get('/api/admin/mentors', (req, res) => {
+  res.json(users.mentors);
+});
+
+app.put('/api/admin/users/:id/block', (req, res) => {
+  const id = parseInt(req.params.id);
+  let user = users.students.find(s => s.id === id);
+  if (!user) {
+    user = users.mentors.find(m => m.id === id);
+  }
+  if (user) {
+    user.isActive = false;
+    res.json({ message: 'User blocked' });
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
+});
+
+app.put('/api/admin/users/:id/unblock', (req, res) => {
+  const id = parseInt(req.params.id);
+  let user = users.students.find(s => s.id === id);
+  if (!user) {
+    user = users.mentors.find(m => m.id === id);
+  }
+  if (user) {
+    user.isActive = true;
+    res.json({ message: 'User unblocked' });
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
+});
+
+app.put('/api/admin/mentors/:id/approve', (req, res) => {
+  const id = parseInt(req.params.id);
+  const mentor = users.mentors.find(m => m.id === id);
+  if (mentor) {
+    mentor.status = 'APPROVED';
+    res.json({ message: 'Mentor approved' });
+  } else {
+    res.status(404).json({ message: 'Mentor not found' });
+  }
+});
+
+app.put('/api/admin/mentors/:id/reject', (req, res) => {
+  const id = parseInt(req.params.id);
+  const mentor = users.mentors.find(m => m.id === id);
+  if (mentor) {
+    mentor.status = 'REJECTED';
+    res.json({ message: 'Mentor rejected' });
+  } else {
+    res.status(404).json({ message: 'Mentor not found' });
+  }
 });
 
 // ===== PAYMENT ENDPOINTS =====

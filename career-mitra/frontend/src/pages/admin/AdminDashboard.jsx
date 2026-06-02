@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { FiUsers, FiDollarSign, FiCalendar, FiArrowRight } from 'react-icons/fi';
 import { mockAdminStats, mockUsers } from '../../data/mockData';
 import { adminService } from '../../services';
+import UserProfileModal from '../../components/UserProfileModal';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState(mockAdminStats);
   const [users, setUsers] = useState(mockUsers);
   const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -108,7 +110,14 @@ const AdminDashboard = () => {
                     const isActive = user.isActive !== undefined ? user.isActive : (user.status === 'active');
                     return (
                       <tr key={user.id} className="border-b border-surface-50 last:border-0 hover:bg-surface-50 transition-colors">
-                        <td className="px-5 py-3 text-sm font-medium text-ink-900">{user.name}</td>
+                        <td className="px-5 py-3 text-sm font-medium text-ink-900">
+                          <button
+                            onClick={() => setSelectedUser(user)}
+                            className="hover:text-brand-600 font-semibold text-left transition-colors"
+                          >
+                            {user.name}
+                          </button>
+                        </td>
                         <td className="px-5 py-3 text-sm text-ink-600">{user.email}</td>
                         <td className="px-5 py-3">
                           <span className={`badge ${
@@ -156,6 +165,12 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      <UserProfileModal
+        isOpen={!!selectedUser}
+        onClose={() => setSelectedUser(null)}
+        user={selectedUser}
+      />
     </div>
   );
 };

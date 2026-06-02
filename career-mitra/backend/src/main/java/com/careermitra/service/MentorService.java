@@ -137,7 +137,7 @@ public class MentorService {
                 .collect(Collectors.toList());
     }
 
-    private MentorDTO convertToDTO(Mentor mentor) {
+    public MentorDTO convertToDTO(Mentor mentor) {
         MentorDTO dto = modelMapper.map(mentor, MentorDTO.class);
         dto.setName(mentor.getUser().getName());
         // Parse skills and expertise arrays from JSON strings

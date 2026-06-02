@@ -3,11 +3,13 @@ import { FiSlash, FiCheck } from 'react-icons/fi';
 import { toast } from '../../utils/toast';
 import { adminService } from '../../services';
 import { useAdminRoute } from '../../hooks/useProtectedRoute';
+import UserProfileModal from '../../components/UserProfileModal';
 
 const ManageUsers = () => {
   useAdminRoute();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -82,7 +84,14 @@ const ManageUsers = () => {
                   const role = (user.role || 'STUDENT').toLowerCase();
                   return (
                     <tr key={user.id} className="border-b border-surface-50 last:border-0 hover:bg-surface-50 transition-colors">
-                      <td className="px-5 py-3 text-sm font-medium text-ink-900">{user.name}</td>
+                      <td className="px-5 py-3 text-sm font-medium text-ink-900">
+                        <button
+                          onClick={() => setSelectedUser(user)}
+                          className="hover:text-brand-600 font-semibold text-left transition-colors"
+                        >
+                          {user.name}
+                        </button>
+                      </td>
                       <td className="px-5 py-3 text-sm text-ink-600">{user.email}</td>
                       <td className="px-5 py-3">
                         <span className={`badge ${
@@ -101,23 +110,32 @@ const ManageUsers = () => {
                         </span>
                       </td>
                       <td className="px-5 py-3">
-                        {user.isActive ? (
+                        <div className="flex items-center gap-3">
                           <button
-                            onClick={() => handleBlockUser(user.id)}
-                            className="flex items-center gap-1 text-xs font-medium text-warm-red hover:opacity-80 transition-opacity"
+                            onClick={() => setSelectedUser(user)}
+                            className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition-colors"
                           >
-                            <FiSlash size={14} />
-                            Block
+                            View Profile
                           </button>
-                        ) : (
-                          <button
-                            onClick={() => handleUnblockUser(user.id)}
-                            className="flex items-center gap-1 text-xs font-medium text-warm-green hover:opacity-80 transition-opacity"
-                          >
-                            <FiCheck size={14} />
-                            Unblock
-                          </button>
-                        )}
+                          <span className="text-surface-200">|</span>
+                          {user.isActive ? (
+                            <button
+                              onClick={() => handleBlockUser(user.id)}
+                              className="flex items-center gap-1 text-xs font-medium text-warm-red hover:opacity-80 transition-opacity"
+                            >
+                              <FiSlash size={14} />
+                              Block
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleUnblockUser(user.id)}
+                              className="flex items-center gap-1 text-xs font-medium text-warm-green hover:opacity-80 transition-opacity"
+                            >
+                              <FiCheck size={14} />
+                              Unblock
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -127,6 +145,12 @@ const ManageUsers = () => {
           </div>
         </div>
       )}
+
+      <UserProfileModal
+        isOpen={!!selectedUser}
+        onClose={() => setSelectedUser(null)}
+        user={selectedUser}
+      />
     </div>
   );
 };
