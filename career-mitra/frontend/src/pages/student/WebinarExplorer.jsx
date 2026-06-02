@@ -21,7 +21,8 @@ const WebinarExplorer = () => {
     try {
       setLoading(true);
       const response = await webinarService.getAll();
-      setWebinars(response.data || []);
+      const activeWebinars = (response.data || []).filter(w => w.status !== 'CANCELLED');
+      setWebinars(activeWebinars);
     } catch (error) {
       console.error('Failed to fetch webinars:', error);
       toast.error('Failed to load webinars');

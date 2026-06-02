@@ -581,6 +581,11 @@ const server = http.createServer((req, res) => {
       return;
     }
     parseBody(req, (data) => {
+      const price = parseFloat(data.price) || 0;
+      if (price < 0) {
+        sendJson(res, 400, { message: 'Price cannot be negative' });
+        return;
+      }
       const newWebinar = {
         id: webinars.length + 1,
         title: data.title || 'Untitled Webinar',
@@ -589,7 +594,7 @@ const server = http.createServer((req, res) => {
         mentorName: loggedInUser.name,
         sessionDate: data.sessionDate,
         timeSlot: data.timeSlot,
-        price: parseFloat(data.price) || 0,
+        price: price,
         capacityLimit: parseInt(data.capacityLimit) || 100,
         registeredCount: 0,
         status: 'UPCOMING',
@@ -663,6 +668,19 @@ const server = http.createServer((req, res) => {
       return;
     }
     webinar.status = 'COMPLETED';
+    sendJson(res, 200, webinar);
+    return;
+  }
+
+  if (pathname.startsWith('/api/webinars/') && pathname.endsWith('/cancel') && req.method === 'PUT') {
+    const parts = pathname.split('/');
+    const id = parseInt(parts[3]);
+    const webinar = webinars.find(w => w.id === id);
+    if (!webinar) {
+      sendJson(res, 404, { message: 'Webinar not found' });
+      return;
+    }
+    webinar.status = 'CANCELLED';
     sendJson(res, 200, webinar);
     return;
   }

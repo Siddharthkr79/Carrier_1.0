@@ -103,6 +103,11 @@ public class WebinarController {
             Mentor mentor = mentorRepository.findByUserId(userDto.getId())
                     .orElseThrow(() -> new RuntimeException("Mentor profile not found"));
 
+            if (dto.getPrice() != null && dto.getPrice() < 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponse("Price cannot be negative"));
+            }
+
             Webinar webinar = new Webinar();
             webinar.setTitle(dto.getTitle());
             webinar.setDescription(dto.getDescription());
@@ -211,6 +216,38 @@ public class WebinarController {
                     .orElseThrow(() -> new RuntimeException("Webinar not found"));
 
             webinar.setStatus("COMPLETED");
+            webinarRepository.save(webinar);
+
+            return ResponseEntity.ok(webinar);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelWebinar(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        try {
+            String cleanToken = token.replace("Bearer ", "");
+            UserDTO userDto = authService.verifyToken(cleanToken);
+
+            if (!userDto.getRole().equals("MENTOR")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ErrorResponse("Only mentors can cancel webinars"));
+            }
+
+            Webinar webinar = webinarRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Webinar not found"));
+
+            Mentor mentor = mentorRepository.findByUserId(userDto.getId())
+                    .orElseThrow(() -> new RuntimeException("Mentor profile not found"));
+            
+            if (!webinar.getMentorId().equals(mentor.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ErrorResponse("Only the host mentor can cancel this webinar"));
+            }
+
+            webinar.setStatus("CANCELLED");
             webinarRepository.save(webinar);
 
             return ResponseEntity.ok(webinar);

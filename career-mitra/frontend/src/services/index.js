@@ -83,6 +83,7 @@ export const webinarService = {
   register: (id) => api.post(`/webinars/${id}/register`),
   start: (id) => api.put(`/webinars/${id}/start`),
   complete: (id) => api.put(`/webinars/${id}/complete`),
+  cancel: (id) => api.put(`/webinars/${id}/cancel`),
 };
 
 export default {

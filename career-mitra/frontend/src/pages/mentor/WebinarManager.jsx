@@ -18,7 +18,8 @@ const WebinarManager = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [sessionDate, setSessionDate] = useState('');
-  const [timeSlot, setTimeSlot] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [price, setPrice] = useState('');
   const [capacityLimit, setCapacityLimit] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -51,8 +52,17 @@ const WebinarManager = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !sessionDate || !timeSlot || !capacityLimit) {
+    if (!title || !sessionDate || !startTime || !endTime || !capacityLimit) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+    if (startTime >= endTime) {
+      toast.error('Start time must be before end time');
+      return;
+    }
+    const ticketPrice = parseFloat(price) || 0;
+    if (ticketPrice < 0) {
+      toast.error('Ticket price cannot be negative');
       return;
     }
 
@@ -62,8 +72,8 @@ const WebinarManager = () => {
         title,
         description,
         sessionDate,
-        timeSlot,
-        price: parseFloat(price) || 0,
+        timeSlot: `${startTime}-${endTime}`,
+        price: ticketPrice,
         capacityLimit: parseInt(capacityLimit) || 100
       };
       await webinarService.create(payload);
@@ -73,14 +83,15 @@ const WebinarManager = () => {
       setTitle('');
       setDescription('');
       setSessionDate('');
-      setTimeSlot('');
+      setStartTime('');
+      setEndTime('');
       setPrice('');
       setCapacityLimit('');
       
       fetchMentorWebinars();
     } catch (error) {
       console.error('Failed to create webinar:', error);
-      toast.error('Failed to schedule webinar');
+      toast.error(error.response?.data?.message || 'Failed to schedule webinar');
     } finally {
       setSubmitting(false);
     }
@@ -94,6 +105,20 @@ const WebinarManager = () => {
     } catch (error) {
       console.error('Failed to start webinar:', error);
       toast.error('Failed to start webinar call');
+    }
+  };
+
+  const handleCancelWebinar = async (webinarId) => {
+    if (!window.confirm('Are you sure you want to cancel this webinar? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      await webinarService.cancel(webinarId);
+      toast.success('Webinar cancelled successfully');
+      fetchMentorWebinars();
+    } catch (error) {
+      console.error('Failed to cancel webinar:', error);
+      toast.error('Failed to cancel webinar');
     }
   };
 
@@ -140,20 +165,26 @@ const WebinarManager = () => {
                   className="input-field resize-none text-xs"
                 />
               </div>
+              <Input
+                label="Session Date *"
+                type="date"
+                value={sessionDate}
+                onChange={(e) => setSessionDate(e.target.value)}
+                required
+              />
               <div className="grid grid-cols-2 gap-4">
                 <Input
-                  label="Session Date *"
-                  type="date"
-                  value={sessionDate}
-                  onChange={(e) => setSessionDate(e.target.value)}
+                  label="Start Time *"
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
                   required
                 />
                 <Input
-                  label="Time Slot *"
-                  type="text"
-                  placeholder="e.g. 15:00-16:30"
-                  value={timeSlot}
-                  onChange={(e) => setTimeSlot(e.target.value)}
+                  label="End Time *"
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
                   required
                 />
               </div>
@@ -163,6 +194,7 @@ const WebinarManager = () => {
                   type="number"
                   placeholder="0 for Free"
                   value={price}
+                  min="0"
                   onChange={(e) => setPrice(e.target.value)}
                 />
                 <Input
@@ -227,6 +259,8 @@ const WebinarManager = () => {
                           <Badge variant="success">Active</Badge>
                         ) : isCompleted ? (
                           <Badge variant="neutral">Completed</Badge>
+                        ) : w.status === 'CANCELLED' ? (
+                          <Badge variant="danger">Cancelled</Badge>
                         ) : (
                           <Badge variant="primary">Upcoming</Badge>
                         )}
@@ -258,29 +292,47 @@ const WebinarManager = () => {
                       </div>
 
                       {/* Action buttons */}
-                      <div className="pt-3 border-t border-surface-100 flex justify-end">
-                        {isUpcoming && (
-                          <button
-                            onClick={() => handleStartWebinar(w.id)}
-                            className="btn-primary text-xs font-bold py-2 px-5"
-                          >
-                            Start Live Room
-                          </button>
-                        )}
-                        {isActive && (
-                          <button
-                            onClick={() => navigate(`/webinar-room/${w.id}`)}
-                            className="btn-primary text-xs font-bold py-2 px-5 flex items-center gap-1.5 bg-emerald-600 border-emerald-500 hover:bg-emerald-700 shadow-emerald-500/10"
-                          >
-                            <FiVideo size={14} />
-                            Join Live Call
-                          </button>
-                        )}
-                        {isCompleted && (
-                          <div className="text-2xs font-bold text-ink-500 bg-surface-100 px-3.5 py-1.5 rounded-lg flex items-center gap-1">
-                            <FiCheckCircle size={12} /> Workshop Completed
-                          </div>
-                        )}
+                      <div className="pt-3 border-t border-surface-100 flex justify-between items-center">
+                        <div>
+                          {isUpcoming && (
+                            <button
+                              type="button"
+                              onClick={() => handleCancelWebinar(w.id)}
+                              className="text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors"
+                            >
+                              Cancel Webinar
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          {isUpcoming && (
+                            <button
+                              onClick={() => handleStartWebinar(w.id)}
+                              className="btn-primary text-xs font-bold py-2 px-5"
+                            >
+                              Start Live Room
+                            </button>
+                          )}
+                          {isActive && (
+                            <button
+                              onClick={() => navigate(`/webinar-room/${w.id}`)}
+                              className="btn-primary text-xs font-bold py-2 px-5 flex items-center gap-1.5 bg-emerald-600 border-emerald-500 hover:bg-emerald-700 shadow-emerald-500/10"
+                            >
+                              <FiVideo size={14} />
+                              Join Live Call
+                            </button>
+                          )}
+                          {isCompleted && (
+                            <div className="text-2xs font-bold text-ink-500 bg-surface-100 px-3.5 py-1.5 rounded-lg flex items-center gap-1">
+                              <FiCheckCircle size={12} /> Workshop Completed
+                            </div>
+                          )}
+                          {w.status === 'CANCELLED' && (
+                            <div className="text-2xs font-bold text-rose-600 bg-rose-50 border border-rose-100 px-3.5 py-1.5 rounded-lg flex items-center gap-1">
+                              ✕ Webinar Cancelled
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
