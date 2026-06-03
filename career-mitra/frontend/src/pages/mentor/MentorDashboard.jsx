@@ -20,6 +20,7 @@ const MentorDashboard = () => {
   });
   const [pendingBookings, setPendingBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mentorStatus, setMentorStatus] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -66,6 +67,7 @@ const MentorDashboard = () => {
       });
 
       setPendingBookings(pending.slice(0, 5)); // Show up to 5 on dashboard
+      setMentorStatus(profile.status || 'PENDING');
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
       toast.error('Failed to load dashboard data');
@@ -117,12 +119,65 @@ const MentorDashboard = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 page-enter">
       
+      {/* Pending Approval Alert Banner */}
+      {mentorStatus === 'PENDING' && (
+        <div className="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-xs flex items-start gap-4 animate-fade-in">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0">
+            <FiClock size={20} className="animate-pulse" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2.5">
+              <h3 className="text-sm font-bold text-amber-900">Verification Pending</h3>
+              <span className="badge badge-warning text-[10px] py-0.5 px-2 font-bold uppercase tracking-wider">Under Review</span>
+            </div>
+            <p className="text-xs text-amber-700 mt-1 leading-relaxed max-w-3xl">
+              Your application to become a mentor is currently being reviewed by our administration team. 
+              You can still set up your profile details and specify your availability slots, but students won't 
+              be able to view your profile or book sessions with you until your credentials have been verified.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Rejected Alert Banner */}
+      {mentorStatus === 'REJECTED' && (
+        <div className="mb-6 bg-gradient-to-r from-rose-50 to-red-50 border border-rose-200 rounded-2xl p-5 shadow-xs flex items-start gap-4 animate-fade-in">
+          <div className="w-10 h-10 rounded-xl bg-rose-100 border border-rose-200 flex items-center justify-center text-rose-700 shrink-0">
+            <FiXCircle size={20} />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2.5">
+              <h3 className="text-sm font-bold text-rose-900">Verification Rejected</h3>
+              <span className="badge badge-danger text-[10px] py-0.5 px-2 font-bold uppercase tracking-wider">Rejected</span>
+            </div>
+            <p className="text-xs text-rose-700 mt-1 leading-relaxed max-w-3xl">
+              Your application to become a mentor was declined by the administrator. This is usually due to incomplete profile 
+              information, an inactive LinkedIn profile, or missing/invalid supportive document uploads. Please review and update 
+              your profile details, re-upload your verification document, or reach out to support.
+            </p>
+            <div className="mt-3 flex">
+              <button
+                onClick={() => navigate('/mentor/profile')}
+                className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs"
+              >
+                Update Profile Details
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Header */}
       <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white border border-surface-200 p-6 md:p-8 rounded-2xl shadow-2xs relative overflow-hidden">
         <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-brand-500/5 filter blur-3xl -z-10" />
         <div>
           <h1 className="text-2xl font-black text-ink-950 tracking-tight flex items-center gap-2">
             Welcome back, {user?.name || 'Mentor'} 👋
+            {mentorStatus === 'APPROVED' && (
+              <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs px-2.5 py-0.5 rounded-lg border border-emerald-100 font-bold tracking-wide">
+                <FiCheckCircle size={11} /> Verified
+              </span>
+            )}
           </h1>
           <p className="text-xs font-semibold text-ink-500 mt-1 uppercase tracking-wider">Expert Management Console</p>
         </div>

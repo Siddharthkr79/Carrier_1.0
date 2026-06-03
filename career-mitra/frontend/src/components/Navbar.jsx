@@ -148,6 +148,17 @@ const Navbar = () => {
                         <p className="text-3xs font-extrabold text-indigo-600 uppercase tracking-widest">{user.role}</p>
                         <p className="text-xs font-bold text-ink-900 truncate mt-0.5">{user.name}</p>
                         <p className="text-3xs font-medium text-ink-500 truncate mt-0.5">{user.email || 'No email setup'}</p>
+                        {user.role === 'MENTOR' && user.mentor?.status && (
+                          <div className="mt-2">
+                            <span className={`badge ${
+                              user.mentor.status === 'APPROVED' ? 'badge-success' :
+                              user.mentor.status === 'REJECTED' ? 'badge-danger' :
+                              'badge-warning'
+                            } text-[10px] py-0.5 px-2 font-bold`}>
+                              {user.mentor.status}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       
                       {user.role === 'MENTOR' ? (
@@ -231,8 +242,21 @@ const Navbar = () => {
             ) : (
               <div className="space-y-1">
                 <div className="px-4 py-2.5 bg-surface-50 rounded-xl mb-3 border border-surface-150">
-                  <p className="text-3xs font-extrabold text-indigo-600 uppercase tracking-widest">{user.role}</p>
-                  <p className="text-xs font-bold text-ink-900 mt-0.5">{user.name}</p>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-3xs font-extrabold text-indigo-600 uppercase tracking-widest">{user.role}</p>
+                      <p className="text-xs font-bold text-ink-900 mt-0.5">{user.name}</p>
+                    </div>
+                    {user.role === 'MENTOR' && user.mentor?.status && (
+                      <span className={`badge ${
+                        user.mentor.status === 'APPROVED' ? 'badge-success' :
+                        user.mentor.status === 'REJECTED' ? 'badge-danger' :
+                        'badge-warning'
+                      } text-[10px] py-0.5 px-2 font-bold`}>
+                        {user.mentor.status}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {userNavLinks.map((link) => (
                   <Link

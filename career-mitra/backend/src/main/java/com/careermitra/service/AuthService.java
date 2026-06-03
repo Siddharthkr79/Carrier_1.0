@@ -79,11 +79,13 @@ public class AuthService {
         if (user.getRole() == UserRole.STUDENT) {
             Student student = new Student();
             student.setUser(user);
-            studentRepository.save(student);
+            student = studentRepository.save(student);
+            user.setStudent(student);
         } else {
             Mentor mentor = new Mentor();
             mentor.setUser(user);
-            mentorRepository.save(mentor);
+            mentor = mentorRepository.save(mentor);
+            user.setMentor(mentor);
         }
 
         String token = jwtTokenProvider.generateToken(user.getEmail());

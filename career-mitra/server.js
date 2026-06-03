@@ -150,14 +150,25 @@ const server = http.createServer((req, res) => {
       const token = 'mock_jwt_' + Date.now();
       let loggedInUser;
       if (dbUser) {
-        loggedInUser = { id: dbUser.id, name: dbUser.name, email: dbUser.email, role: dbUser.role || (mentors.includes(dbUser) ? 'MENTOR' : 'STUDENT') };
+        const role = dbUser.role || (mentors.includes(dbUser) ? 'MENTOR' : 'STUDENT');
+        loggedInUser = {
+          id: dbUser.id,
+          name: dbUser.name,
+          email: dbUser.email,
+          role: role,
+          isActive: dbUser.isActive
+        };
+        if (role === 'MENTOR') {
+          loggedInUser.mentor = dbUser;
+        }
       } else {
         const isDefaultAdmin = data.email.includes('admin');
         loggedInUser = {
           id: isDefaultAdmin ? 999 : 1,
           name: isDefaultAdmin ? 'Admin User' : 'John Student',
           email: data.email,
-          role: isDefaultAdmin ? 'ADMIN' : 'STUDENT'
+          role: isDefaultAdmin ? 'ADMIN' : 'STUDENT',
+          isActive: true
         };
       }
       activeSessions[token] = loggedInUser;
@@ -181,7 +192,7 @@ const server = http.createServer((req, res) => {
       };
 
       if (data.role === 'MENTOR') {
-        mentors.push({
+        const newMentor = {
           id: newUser.id,
           name: newUser.name,
           email: newUser.email,
@@ -196,7 +207,9 @@ const server = http.createServer((req, res) => {
           reviewCount: 0,
           status: 'PENDING',
           isActive: true
-        });
+        };
+        mentors.push(newMentor);
+        newUser.mentor = newMentor;
       } else {
         users.students.push({
           id: newUser.id,
@@ -231,6 +244,14 @@ const server = http.createServer((req, res) => {
     if (dbUser && dbUser.isActive === false) {
       sendJson(res, 401, { message: 'Your account is blocked. Please contact support.' });
       return;
+    }
+
+    if (dbUser) {
+      loggedInUser.name = dbUser.name;
+      loggedInUser.email = dbUser.email;
+      if (loggedInUser.role === 'MENTOR') {
+        loggedInUser.mentor = dbUser;
+      }
     }
 
     sendJson(res, 200, loggedInUser);

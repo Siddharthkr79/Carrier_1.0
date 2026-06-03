@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FiCheckCircle, FiXCircle, FiClock, FiAlertTriangle } from 'react-icons/fi';
 import { toast } from '../../utils/toast';
 import { mentorService, availabilityService, BACKEND_URL } from '../../services';
 import { useMentorRoute } from '../../hooks/useProtectedRoute';
@@ -43,6 +44,7 @@ const MentorProfile = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [mentorId, setMentorId] = useState(null);
   const [availability, setAvailability] = useState([]);
+  const [status, setStatus] = useState('PENDING');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [skillsInput, setSkillsInput] = useState('');
@@ -95,6 +97,7 @@ const MentorProfile = () => {
       setSelectedCategories(selectedCats);
       setSkillsInput(customSkills.join(', '));
       setExpertiseInput(expertiseArray.join(', '));
+      setStatus(data.status || 'PENDING');
       
       // Persist mentorId for subsequent availability calls
       const id = data.id;
@@ -253,8 +256,62 @@ const MentorProfile = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto px-4 py-12 page-enter">
       <h1 className="text-4xl font-bold mb-8">Edit Profile</h1>
+
+      {/* Verification Status Alert Banner */}
+      {status === 'PENDING' && (
+        <div className="mb-8 bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-start gap-4 animate-fade-in">
+          <div className="w-9 h-9 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0">
+            <FiClock size={18} className="animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-amber-900">Verification Status: Pending</span>
+              <span className="badge badge-warning text-[10px] py-0.5 px-2 font-bold uppercase tracking-wider">Under Review</span>
+            </div>
+            <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+              Your profile is pending administrator approval. In the meantime, you can continue to complete your bio, 
+              skills, and availability slots below. Your profile will become discoverable to students once approved.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {status === 'REJECTED' && (
+        <div className="mb-8 bg-rose-50 border border-rose-200 rounded-xl p-5 flex items-start gap-4 animate-fade-in">
+          <div className="w-9 h-9 rounded-lg bg-rose-100 border border-rose-200 flex items-center justify-center text-rose-700 shrink-0">
+            <FiXCircle size={18} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-rose-900">Verification Status: Rejected</span>
+              <span className="badge badge-danger text-[10px] py-0.5 px-2 font-bold uppercase tracking-wider">Declined</span>
+            </div>
+            <p className="text-xs text-rose-700 mt-1 leading-relaxed">
+              Your verification has been declined by the administrator. Please update your profile details and ensure that you 
+              upload a clear, valid supportive document (ID badge, credentials, or certifications) in the section below.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {status === 'APPROVED' && (
+        <div className="mb-8 bg-emerald-50 border border-emerald-200 rounded-xl p-5 flex items-start gap-4 animate-fade-in">
+          <div className="w-9 h-9 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
+            <FiCheckCircle size={18} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-emerald-900">Verification Status: Approved</span>
+              <span className="badge badge-success text-[10px] py-0.5 px-2 font-bold uppercase tracking-wider">Verified</span>
+            </div>
+            <p className="text-xs text-emerald-700 mt-1 leading-relaxed">
+              Your profile is fully verified and active. Students can now explore your profile, book mentoring sessions, and view your availability.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Profile Form */}
       <form onSubmit={handleSaveProfile} className="bg-white rounded-lg shadow-md p-8 mb-8">
@@ -383,21 +440,34 @@ const MentorProfile = () => {
           </div>
 
           {/* Supportive Document Upload */}
-          <div className="bg-surface-50 p-4 rounded-lg border border-surface-200">
+          <div className={`p-4 rounded-lg border ${
+            status === 'REJECTED' 
+              ? 'bg-rose-50/50 border-rose-300 ring-2 ring-rose-200' 
+              : 'bg-surface-50 border-surface-200'
+          }`}>
             <label className="block text-xs font-semibold text-gray-700 mb-1.5">
               Supportive Document (ID Badge, Resume, etc.) <span className="text-red-500 font-bold">*</span>
+              {status === 'REJECTED' && (
+                <span className="text-rose-600 font-bold text-[10px] ml-2 uppercase tracking-wide inline-flex items-center gap-0.5 mt-0.5">
+                  <FiAlertTriangle size={11} /> Please re-upload a valid verification document
+                </span>
+              )}
             </label>
             <div className="flex items-center gap-4">
               <input
                 type="file"
                 accept=".pdf,.doc,.docx,image/*"
                 onChange={handleDocumentUpload}
-                className="input-field text-xs cursor-pointer"
+                className={`input-field text-xs cursor-pointer ${
+                  status === 'REJECTED' ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20' : ''
+                }`}
                 required={!formData.supportiveDocumentUrl}
               />
               {formData.supportiveDocumentUrl && (
-                <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1 shrink-0">
-                  ✓ Document Uploaded
+                <span className={`text-xs font-semibold flex items-center gap-1 shrink-0 ${
+                  status === 'REJECTED' ? 'text-rose-600' : 'text-emerald-600'
+                }`}>
+                  {status === 'REJECTED' ? '⚠ Update Document' : '✓ Document Uploaded'}
                 </span>
               )}
             </div>
